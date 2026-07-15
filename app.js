@@ -7,24 +7,24 @@ import {
 /* ============================== data ============================== */
 
 const CATEGORIES = {
-  streamers:  { label: "Стримеры", emoji: "🎥", words: ["Mellstroy","A4","Buster","Papich","Ivangai","xQc","Ninja","Pokimane","Shroud","TommyInnit","Kuplinov","Морган","DedInside","Kuzya","Jesus AVGN"] },
-  games:      { label: "Видеоигры", emoji: "🎮", words: ["CS 2","Dota 2","Minecraft","GTA V","Fortnite","Valorant","The Witcher 3","Genshin Impact","League of Legends","Among Us","Roblox","Cyberpunk 2077","Elden Ring","PUBG","Apex Legends"] },
-  jobs:       { label: "Профессии", emoji: "💼", words: ["Хирург","Пилот","Повар","Учитель","Полицейский","Пожарный","Программист","Стоматолог","Адвокат","Архитектор","Диджей","Бариста","Электрик","Косметолог","Таксист"] },
-  animals:    { label: "Животные", emoji: "🦁", words: ["Лев","Дельфин","Панда","Жираф","Пингвин","Крокодил","Кенгуру","Осьминог","Волк","Сова","Ёж","Фламинго","Тигр","Коала","Черепаха"] },
-  food:       { label: "Еда", emoji: "🍜", words: ["Пицца","Суши","Борщ","Бургер","Паста","Шаурма","Плов","Тако","Рамен","Пельмени","Оливье","Круассан","Мороженое","Стейк","Хачапури"] },
-  countries:  { label: "Страны", emoji: "🌍", words: ["Япония","Бразилия","Египет","Норвегия","Таиланд","Италия","Исландия","Мексика","Индия","Марокко","Канада","Австралия","Турция","Куба","Швейцария"] },
-  sport:      { label: "Спорт", emoji: "🏆", words: ["Футбол","Баскетбол","Теннис","Хоккей","Бокс","Плавание","Сёрфинг","Волейбол","Гимнастика","Регби","Керлинг","Скейтбординг","Дартс","Бильярд","Бадминтон"] },
-  movies:     { label: "Фильмы и сериалы", emoji: "🎬", words: ["Титаник","Матрица","Аватар","Джокер","Интерстеллар","Терминатор","Бойцовский клуб","Начало","Гарри Поттер","Игра престолов","Во все тяжкие","Один дома","Крёстный отец","Форрест Гамп","Люцифер"] },
-  superheroes:{ label: "Супергерои", emoji: "🦸", words: ["Бэтмен","Человек-паук","Железный человек","Тор","Халк","Флэш","Дэдпул","Росомаха","Чудо-женщина","Капитан Америка","Веном","Доктор Стрэндж","Аквамен","Женщина-кошка"] },
-  cars:       { label: "Марки авто", emoji: "🚗", words: ["Tesla","BMW","Toyota","Ferrari","Lada","Mercedes","Audi","Porsche","Lamborghini","Volkswagen","Hyundai","Nissan","Honda","Ford","Chevrolet"] },
-  space:      { label: "Космос", emoji: "🚀", words: ["Луна","Марс","Чёрная дыра","Млечный Путь","МКС","Комета","Астероид","Сатурн","Метеорит","Телескоп","Скафандр","Ракета","Юпитер","Галактика","Затмение"] },
-  apps:       { label: "Соцсети и приложения", emoji: "📱", words: ["TikTok","Instagram","Telegram","YouTube","WhatsApp","Discord","Spotify","Twitch","Pinterest","Snapchat","Reddit","VK","Zoom","Netflix","Duolingo"] },
-  boardgames: { label: "Настольные игры", emoji: "🎲", words: ["Монополия","Шахматы","Мафия","Уно","Дженга","Скрэббл","Твистер","Каркассон","Домино","Шашки","Эрудит","Крестики-нолики","Покер","Нарды","Бинго"] },
-  anime:      { label: "Аниме", emoji: "⛩️", words: ["Наруто","Ван-Пис","Атака титанов","Тетрадь смерти","Человек-бензопила","Драконий жемчуг","Магическая битва","Токийский гуль","Твоё имя","Убийца демонов","Евангелион","Сейлор Мун","Хантер×Хантер","Стальной алхимик"] },
-  drinks:     { label: "Напитки", emoji: "🥤", words: ["Кофе","Чай","Кола","Морс","Смузи","Молочный коктейль","Лимонад","Квас","Компот","Какао","Энергетик","Айран","Сок","Газировка","Матча"] },
-  holidays:   { label: "Праздники", emoji: "🎉", words: ["Новый год","День рождения","Хэллоуин","8 марта","23 февраля","Пасха","Масленица","День святого Валентина","Выпускной","Свадьба","1 сентября","Новоселье","День победы","Юбилей","Пикник"] },
-  school:     { label: "Школьные предметы", emoji: "📚", words: ["Математика","Физика","Химия","История","География","Биология","Литература","Информатика","Физкультура","Английский язык","Музыка","ИЗО","Труд","Обществознание","Астрономия"] },
-  places:     { label: "Места", emoji: "📍", hard: true,
+  streamers:  { label: "Стримеры", labelEn: "Streamers", emoji: "🎥", words: ["Mellstroy","A4","Buster","Papich","Ivangai","xQc","Ninja","Pokimane","Shroud","TommyInnit","Kuplinov","Морган","DedInside","Kuzya","Jesus AVGN"] },
+  games:      { label: "Видеоигры", labelEn: "Video games", emoji: "🎮", words: ["CS 2","Dota 2","Minecraft","GTA V","Fortnite","Valorant","The Witcher 3","Genshin Impact","League of Legends","Among Us","Roblox","Cyberpunk 2077","Elden Ring","PUBG","Apex Legends"] },
+  jobs:       { label: "Профессии", labelEn: "Professions", emoji: "💼", words: ["Хирург","Пилот","Повар","Учитель","Полицейский","Пожарный","Программист","Стоматолог","Адвокат","Архитектор","Диджей","Бариста","Электрик","Косметолог","Таксист"] },
+  animals:    { label: "Животные", labelEn: "Animals", emoji: "🦁", words: ["Лев","Дельфин","Панда","Жираф","Пингвин","Крокодил","Кенгуру","Осьминог","Волк","Сова","Ёж","Фламинго","Тигр","Коала","Черепаха"] },
+  food:       { label: "Еда", labelEn: "Food", emoji: "🍜", words: ["Пицца","Суши","Борщ","Бургер","Паста","Шаурма","Плов","Тако","Рамен","Пельмени","Оливье","Круассан","Мороженое","Стейк","Хачапури"] },
+  countries:  { label: "Страны", labelEn: "Countries", emoji: "🌍", words: ["Япония","Бразилия","Египет","Норвегия","Таиланд","Италия","Исландия","Мексика","Индия","Марокко","Канада","Австралия","Турция","Куба","Швейцария"] },
+  sport:      { label: "Спорт", labelEn: "Sports", emoji: "🏆", words: ["Футбол","Баскетбол","Теннис","Хоккей","Бокс","Плавание","Сёрфинг","Волейбол","Гимнастика","Регби","Керлинг","Скейтбординг","Дартс","Бильярд","Бадминтон"] },
+  movies:     { label: "Фильмы и сериалы", labelEn: "Movies & TV", emoji: "🎬", words: ["Титаник","Матрица","Аватар","Джокер","Интерстеллар","Терминатор","Бойцовский клуб","Начало","Гарри Поттер","Игра престолов","Во все тяжкие","Один дома","Крёстный отец","Форрест Гамп","Люцифер"] },
+  superheroes:{ label: "Супергерои", labelEn: "Superheroes", emoji: "🦸", words: ["Бэтмен","Человек-паук","Железный человек","Тор","Халк","Флэш","Дэдпул","Росомаха","Чудо-женщина","Капитан Америка","Веном","Доктор Стрэндж","Аквамен","Женщина-кошка"] },
+  cars:       { label: "Марки авто", labelEn: "Car brands", emoji: "🚗", words: ["Tesla","BMW","Toyota","Ferrari","Lada","Mercedes","Audi","Porsche","Lamborghini","Volkswagen","Hyundai","Nissan","Honda","Ford","Chevrolet"] },
+  space:      { label: "Космос", labelEn: "Space", emoji: "🚀", words: ["Луна","Марс","Чёрная дыра","Млечный Путь","МКС","Комета","Астероид","Сатурн","Метеорит","Телескоп","Скафандр","Ракета","Юпитер","Галактика","Затмение"] },
+  apps:       { label: "Соцсети и приложения", labelEn: "Apps & social", emoji: "📱", words: ["TikTok","Instagram","Telegram","YouTube","WhatsApp","Discord","Spotify","Twitch","Pinterest","Snapchat","Reddit","VK","Zoom","Netflix","Duolingo"] },
+  boardgames: { label: "Настольные игры", labelEn: "Board games", emoji: "🎲", words: ["Монополия","Шахматы","Мафия","Уно","Дженга","Скрэббл","Твистер","Каркассон","Домино","Шашки","Эрудит","Крестики-нолики","Покер","Нарды","Бинго"] },
+  anime:      { label: "Аниме", labelEn: "Anime", emoji: "⛩️", words: ["Наруто","Ван-Пис","Атака титанов","Тетрадь смерти","Человек-бензопила","Драконий жемчуг","Магическая битва","Токийский гуль","Твоё имя","Убийца демонов","Евангелион","Сейлор Мун","Хантер×Хантер","Стальной алхимик"] },
+  drinks:     { label: "Напитки", labelEn: "Drinks", emoji: "🥤", words: ["Кофе","Чай","Кола","Морс","Смузи","Молочный коктейль","Лимонад","Квас","Компот","Какао","Энергетик","Айран","Сок","Газировка","Матча"] },
+  holidays:   { label: "Праздники", labelEn: "Holidays", emoji: "🎉", words: ["Новый год","День рождения","Хэллоуин","8 марта","23 февраля","Пасха","Масленица","День святого Валентина","Выпускной","Свадьба","1 сентября","Новоселье","День победы","Юбилей","Пикник"] },
+  school:     { label: "Школьные предметы", labelEn: "School subjects", emoji: "📚", words: ["Математика","Физика","Химия","История","География","Биология","Литература","Информатика","Физкультура","Английский язык","Музыка","ИЗО","Труд","Обществознание","Астрономия"] },
+  places:     { label: "Места", labelEn: "Places", emoji: "📍", hard: true,
     wordsEasy: ["Школа","Больница","Магазин","Кинотеатр","Ресторан","Кафе","Парк","Пляж","Стадион","Библиотека","Отель","Аэропорт","Автобусная остановка","Почта","Банк","Супермаркет","Зоопарк","Музей"],
     wordsHard: ["Крематорий","Военная база","Бункер","Нефтяная платформа","Подводная лодка","Обсерватория","Серверная","Электростанция","Радиостанция","Лаборатория","Космодром","Шахта","Очистные сооружения","Морской порт","Диспетчерская вышка"],
     get words() { return this.wordsEasy.concat(this.wordsHard); } }
@@ -37,9 +37,11 @@ const MIN_PLAYERS_FOR_TWO_SPIES = 6; // keeps at least 4 non-spies in the room
 const VOTE_SECONDS_OPTIONS = [60, 120, 180, 240, 300];
 
 // Returns the word pool for a category, respecting the "Места" difficulty
-// setting when relevant. Every other category is unaffected.
+// setting when relevant. Custom categories (keys starting "custom:") resolve
+// from the local merged set. Every other built-in category is unaffected.
 function wordsForCategory(catKey, placesDifficulty) {
-  const c = CATEGORIES[catKey];
+  const c = allCategories()[catKey];
+  if (!c) return [];
   if (catKey === "places") {
     if (placesDifficulty === "easy") return c.wordsEasy;
     if (placesDifficulty === "hard") return c.wordsHard;
@@ -65,7 +67,18 @@ const ICON = {
   crown: '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19h20l-2-9-5 4-3-8-3 8-5-4-2 9Z"/></svg>',
   copy: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
   check: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
-  refresh: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 22v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L21 8M3 16l2.64 2.36A9 9 0 0 0 20.49 15"/></svg>'
+  refresh: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 22v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L21 8M3 16l2.64 2.36A9 9 0 0 0 20.49 15"/></svg>',
+  sound: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg>',
+  soundOff: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m23 9-6 6M17 9l6 6"/></svg>',
+  gear: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>',
+  play2: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  pause2: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>',
+  prev: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg>',
+  next: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5l11 7-11 7z"/></svg>',
+  note: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  search: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+  plus: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+  trash: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>'
 };
 
 /* ============================== helpers ============================== */
@@ -111,8 +124,24 @@ function playerRef(code, id) { return ref(db, `rooms/${code}/players/${id}`); }
 
 const MY_ID = getMyId();
 
+// ---- persisted UI settings (localStorage) — presentation only, never sent to Firebase ----
+function loadSetting(key, fallback) {
+  try { const v = localStorage.getItem(key); return v == null ? fallback : JSON.parse(v); }
+  catch { return fallback; }
+}
+function saveSetting(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
+// Custom categories are stored locally per device (not synced) and merged into
+// the picker. They use string keys prefixed "custom:" so they never collide
+// with the built-in CATEGORIES keys the online room logic relies on.
+function loadCustomCategories() {
+  const raw = loadSetting("spyCustomCats", {});
+  return (raw && typeof raw === "object") ? raw : {};
+}
+
 const state = {
-  screen: "menu", // menu | home | setup | reveal | discuss | result | online-home | online-create | online-join | online-room
+  screen: "menu", // menu | home | setup | reveal | discuss | result | online-home | online-create | online-join | online-room | custom | settings
   // local (pass-the-phone) mode
   categoryKey: null,
   playerCount: 5,
@@ -133,13 +162,213 @@ const state = {
   errorMsg: "",
   busy: false,
   connecting: false,
-  // UI-only (does not affect game/Firebase logic): whether the "Как играть" modal is open
-  rulesOpen: false
+  // ---- UI-only additions (do not affect game/Firebase logic) ----
+  rulesOpen: false,
+  lang: loadSetting("spyLang", "ru"),          // "ru" | "en"
+  soundOn: loadSetting("spySoundOn", true),
+  musicOn: loadSetting("spyMusicOn", false),
+  volume: loadSetting("spyVolume", 0.6),
+  musicTrackIndex: loadSetting("spyTrackIndex", 0),
+  playerName: loadSetting("spyProfileName", sessionStorage.getItem("spyPlayerName") || ""),
+  catSearch: "",
+  customCats: loadCustomCategories(),
+  customDraft: { name: "", words: "" },       // "create your own category" form
+  playerOpen: false,                           // music player expanded on mobile
+  splashDone: false,
+  toasts: []
 };
 
+let toastSeq = 0;
 let discussTimerId = null;   // local pass-the-phone discussion timer
 let onlineTickId = null;     // 1s local clock for the online countdown display
 let roomListenerRef = null;  // currently subscribed Firebase ref, for cleanup
+
+/* ============================== i18n ============================== */
+
+const I18N = {
+  ru: {
+    tagline: "Найди шпиона. Спаси команду.",
+    intro: "Один из вас не знает секретное слово. Остальные описывают его намёками, не называя напрямую — а шпион слушает и пытается вычислить, о чём речь.",
+    playOnline: "Играть онлайн", playOnlineSub: "У каждого свой телефон или компьютер — комната по коду",
+    passPhone: "Один телефон по кругу", passPhoneSub: "Передаёте устройство каждому игроку вживую",
+    howToPlay: "Как играть", rules: "Правила", settings: "Настройки", categories: "Категории",
+    myWords: "Мои слова", music: "Музыка", home: "Главная", play: "Играть",
+    createRoom: "Создать комнату", joinRoom: "Войти по коду", back: "Назад",
+    theme: "Тема", searchCats: "Поиск категорий…", noCatsFound: "Ничего не найдено",
+    language: "Язык", sound: "Звуковые эффекты", enable: "Вкл", disable: "Выкл",
+    customTitle: "Своя категория", customName: "Название категории",
+    customWords: "Слова через запятую", customSave: "Сохранить категорию",
+    customHint: "Своя категория сохраняется только на этом устройстве и доступна в режиме «Один телефон».",
+    customEmpty: "Пока нет своих категорий.", customDelete: "Удалить",
+    volume: "Громкость", nowPlaying: "Сейчас играет", noTracks: "Добавьте свои аудиофайлы",
+    by: "by Nickalora", online: "Онлайн"
+  },
+  en: {
+    tagline: "Find the spy. Save the team.",
+    intro: "One of you doesn't know the secret word. Everyone else describes it with hints, without naming it — while the spy listens and tries to figure out what it is.",
+    playOnline: "Play online", playOnlineSub: "Everyone on their own phone or PC — room by code",
+    passPhone: "Pass one phone", passPhoneSub: "Hand the device to each player in turn",
+    howToPlay: "How to play", rules: "Rules", settings: "Settings", categories: "Categories",
+    myWords: "My words", music: "Music", home: "Home", play: "Play",
+    createRoom: "Create room", joinRoom: "Join by code", back: "Back",
+    theme: "Topic", searchCats: "Search categories…", noCatsFound: "Nothing found",
+    language: "Language", sound: "Sound effects", enable: "On", disable: "Off",
+    customTitle: "Custom category", customName: "Category name",
+    customWords: "Words, comma-separated", customSave: "Save category",
+    customHint: "A custom category is stored only on this device and available in “Pass one phone” mode.",
+    customEmpty: "No custom categories yet.", customDelete: "Delete",
+    volume: "Volume", nowPlaying: "Now playing", noTracks: "Add your own audio files",
+    by: "by Nickalora", online: "Online"
+  }
+};
+function t(key) {
+  const lang = state.lang === "en" ? "en" : "ru";
+  return (I18N[lang] && I18N[lang][key]) || (I18N.ru[key] || key);
+}
+// Localised category label (built-ins have labelEn; custom cats use their own name)
+function catLabel(catKey) {
+  const c = allCategories()[catKey];
+  if (!c) return catKey;
+  if (state.lang === "en" && c.labelEn) return c.labelEn;
+  return c.label;
+}
+// Built-in + custom categories merged. Custom keys are "custom:<id>".
+function allCategories() {
+  const merged = Object.assign({}, CATEGORIES);
+  for (const id in state.customCats) merged["custom:" + id] = state.customCats[id];
+  return merged;
+}
+
+/* ============================== music (universal player, bring-your-own audio) ==============================
+   No copyrighted audio is bundled. Drop your own files into an "audio" folder
+   next to index.html and list them below — the player works immediately.
+   Each entry: { title, artist, src, cover }. `src`/`cover` may be empty until
+   you add files; the player then runs in silent "demo" mode (controls work,
+   nothing plays) so the UI is fully testable now. */
+const TRACKS = [
+  { title: "Night Drive", artist: "Synthwave Mix", src: "", cover: "" },
+  { title: "Cold Case",   artist: "Noir Beats",    src: "", cover: "" },
+  { title: "Trust No One", artist: "Spy Theme",    src: "", cover: "" }
+];
+
+let audioEl = null;
+function getAudio() {
+  if (!audioEl) {
+    audioEl = new Audio();
+    audioEl.preload = "none";
+    audioEl.volume = state.volume;
+    audioEl.addEventListener("ended", () => musicNext());
+  }
+  return audioEl;
+}
+function currentTrack() {
+  if (!TRACKS.length) return null;
+  const i = ((state.musicTrackIndex % TRACKS.length) + TRACKS.length) % TRACKS.length;
+  return TRACKS[i];
+}
+function musicApplyLoad(autoplay) {
+  const a = getAudio();
+  const tr = currentTrack();
+  a.volume = state.volume;
+  if (tr && tr.src) {
+    if (a.src !== tr.src) a.src = tr.src;
+    if (autoplay && state.musicOn) a.play().catch(() => {});
+    else if (!state.musicOn) a.pause();
+  } else {
+    a.removeAttribute("src");
+  }
+}
+function musicToggle() {
+  state.musicOn = !state.musicOn;
+  saveSetting("spyMusicOn", state.musicOn);
+  const a = getAudio();
+  const tr = currentTrack();
+  if (state.musicOn && tr && tr.src) a.play().catch(() => {});
+  else a.pause();
+  render();
+}
+function musicNext() {
+  state.musicTrackIndex = (state.musicTrackIndex + 1) % (TRACKS.length || 1);
+  saveSetting("spyTrackIndex", state.musicTrackIndex);
+  musicApplyLoad(true);
+  render();
+}
+function musicPrev() {
+  state.musicTrackIndex = (state.musicTrackIndex - 1 + (TRACKS.length || 1)) % (TRACKS.length || 1);
+  saveSetting("spyTrackIndex", state.musicTrackIndex);
+  musicApplyLoad(true);
+  render();
+}
+function setVolume(v) {
+  state.volume = Math.max(0, Math.min(1, v));
+  saveSetting("spyVolume", state.volume);
+  getAudio().volume = state.volume;
+}
+
+/* ============================== sound effects (WebAudio blips, no files) ============================== */
+let sfxCtx = null;
+function playSfx(type) {
+  if (!state.soundOn) return;
+  try {
+    sfxCtx = sfxCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const now = sfxCtx.currentTime;
+    const o = sfxCtx.createOscillator();
+    const g = sfxCtx.createGain();
+    o.connect(g); g.connect(sfxCtx.destination);
+    const freqs = { tap: 420, ok: 660, win: 780, lose: 200, open: 520 };
+    o.frequency.value = freqs[type] || 440;
+    o.type = type === "lose" ? "sawtooth" : "sine";
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.16, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+    o.start(now); o.stop(now + 0.24);
+    if (type === "win") { const o2 = sfxCtx.createOscillator(); const g2 = sfxCtx.createGain(); o2.connect(g2); g2.connect(sfxCtx.destination); o2.frequency.setValueAtTime(660, now); o2.frequency.exponentialRampToValueAtTime(990, now + 0.18); g2.gain.setValueAtTime(0.0001, now); g2.gain.exponentialRampToValueAtTime(0.12, now + 0.03); g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.3); o2.start(now); o2.stop(now + 0.32); }
+  } catch {}
+}
+
+/* ============================== toasts (replace alert/inline errors visually) ============================== */
+function toast(message, kind) {
+  const id = ++toastSeq;
+  state.toasts.push({ id, message, kind: kind || "info" });
+  render();
+  setTimeout(() => {
+    state.toasts = state.toasts.filter((x) => x.id !== id);
+    render();
+  }, 3200);
+}
+
+/* ============================== custom categories & settings (local) ============================== */
+
+function saveCustomCategory() {
+  const name = (state.customDraft.name || "").trim();
+  const rawWords = (state.customDraft.words || "").split(",").map((w) => w.trim()).filter(Boolean);
+  if (!name) { toast(state.lang === "en" ? "Enter a category name" : "Введите название категории", "error"); return; }
+  if (rawWords.length < 3) { toast(state.lang === "en" ? "Add at least 3 words" : "Добавьте минимум 3 слова", "error"); return; }
+  const id = "c" + Date.now().toString(36);
+  state.customCats[id] = { label: name, labelEn: name, emoji: "🗂️", words: rawWords };
+  saveSetting("spyCustomCats", state.customCats);
+  state.customDraft = { name: "", words: "" };
+  playSfx("ok");
+  toast(state.lang === "en" ? "Category saved" : "Категория сохранена", "ok");
+  render();
+}
+function deleteCustomCategory(id) {
+  delete state.customCats[id];
+  saveSetting("spyCustomCats", state.customCats);
+  if (state.categoryKey === "custom:" + id) state.categoryKey = null;
+  render();
+}
+function setLang(lang) {
+  state.lang = lang === "en" ? "en" : "ru";
+  saveSetting("spyLang", state.lang);
+  render();
+}
+function setSound(on) {
+  state.soundOn = !!on;
+  saveSetting("spySoundOn", state.soundOn);
+  if (on) playSfx("tap");
+  render();
+}
 
 function stopDiscussTimer() {
   if (discussTimerId) { clearInterval(discussTimerId); discussTimerId = null; }
@@ -393,7 +622,8 @@ function copyCode() {
 /* ============================== local (pass-the-phone) actions ============================== */
 
 function pickRound(catKey) {
-  const list = CATEGORIES[catKey].words;
+  const list = wordsForCategory(catKey, state.placesDifficulty || "all");
+  if (!list || !list.length) { toast(t("noTracks"), "error"); return; }
   state.categoryKey = catKey;
   state.word = pickRandom(list);
   state.spyIndex = Math.floor(Math.random() * state.playerCount);
@@ -448,26 +678,158 @@ function resetDiscussTimer() {
 const app = document.getElementById("app");
 
 function render() {
-  let html = '<div class="glow glow-a" aria-hidden="true"></div><div class="glow glow-b" aria-hidden="true"></div>';
-  html += renderHeader();
-  switch (state.screen) {
-    case "menu": html += renderMenu(); break;
-    case "home": html += renderHome(); break;
-    case "setup": html += renderSetup(); break;
-    case "reveal": html += renderReveal(); break;
-    case "discuss": html += renderDiscuss(); break;
-    case "result": html += renderResult(); break;
-    case "online-home": html += renderOnlineHome(); break;
-    case "online-create": html += renderOnlineCreate(); break;
-    case "online-join": html += renderOnlineJoin(); break;
-    case "online-room": html += renderOnlineRoom(); break;
-    default: html += renderMenu();
+  // Cinematic splash on first load only (UI-only; doesn't gate any game logic).
+  if (!state.splashDone) {
+    app.innerHTML = renderSplash();
+    return;
   }
+  let html = '<div class="cinematic-bg" aria-hidden="true"></div>';
+  html += '<div class="glow glow-a" aria-hidden="true"></div><div class="glow glow-b" aria-hidden="true"></div>';
+  html += renderHeader();
+  let body = "";
+  switch (state.screen) {
+    case "menu": body = renderMenu(); break;
+    case "home": body = renderHome(); break;
+    case "setup": body = renderSetup(); break;
+    case "reveal": body = renderReveal(); break;
+    case "discuss": body = renderDiscuss(); break;
+    case "result": body = renderResult(); break;
+    case "online-home": body = renderOnlineHome(); break;
+    case "online-create": body = renderOnlineCreate(); break;
+    case "online-join": body = renderOnlineJoin(); break;
+    case "online-room": body = renderOnlineRoom(); break;
+    case "custom": body = renderCustomScreen(); break;
+    case "settings": body = renderSettingsScreen(); break;
+    default: body = renderMenu();
+  }
+  // Key the screen wrapper so CSS transition re-triggers on every navigation.
+  html += `<div class="screen-anim" data-scr="${state.screen}">${body}</div>`;
   html += renderStatsBar();
+  html += renderPlayer();
+  html += renderToasts();
   if (state.rulesOpen) html += renderRulesModal();
   app.innerHTML = html;
   wireEvents();
   ensureOnlineTick();
+  if (typeof resultSfxWatcher === "function") resultSfxWatcher();
+}
+
+function renderSplash() {
+  // auto-dismiss handled in boot section
+  return `
+    <div class="splash" id="splash">
+      <div class="cinematic-bg" aria-hidden="true"></div>
+      <div class="splash-inner">
+        <div class="splash-logo">ШПИОН</div>
+        <div class="splash-by">by Nickalora</div>
+        <div class="splash-bar"><span></span></div>
+      </div>
+    </div>`;
+}
+
+function renderToasts() {
+  if (!state.toasts.length) return "";
+  return `<div class="toast-wrap">` + state.toasts.map((tt) =>
+    `<div class="toast toast-${tt.kind}">${esc(tt.message)}</div>`
+  ).join("") + `</div>`;
+}
+
+/* ---------- music player (universal shell; add your own audio in TRACKS) ---------- */
+
+function renderPlayer() {
+  const tr = currentTrack();
+  const collapsed = !state.playerOpen;
+  const title = tr ? tr.title : "—";
+  const artist = tr ? tr.artist : t("noTracks");
+  const cover = tr && tr.cover
+    ? `<img src="${esc(tr.cover)}" alt="" class="pl-cover-img" />`
+    : `<span class="pl-cover-fallback">${ICON.note}</span>`;
+  return `
+    <div class="player ${collapsed ? "player-collapsed" : "player-open"}">
+      <button class="player-fab" id="playerFab" aria-label="${t("music")}">${ICON.note}</button>
+      <div class="player-bar">
+        <div class="pl-left">
+          <span class="pl-cover">${cover}</span>
+          <span class="pl-meta">
+            <span class="pl-title">${esc(title)}</span>
+            <span class="pl-artist">${esc(artist)}</span>
+          </span>
+        </div>
+        <div class="pl-controls">
+          <button class="pl-btn" id="plPrev" aria-label="prev">${ICON.prev}</button>
+          <button class="pl-btn pl-play" id="plPlay" aria-label="play/pause">${state.musicOn ? ICON.pause2 : ICON.play2}</button>
+          <button class="pl-btn" id="plNext" aria-label="next">${ICON.next}</button>
+        </div>
+        <div class="pl-right">
+          ${ICON.sound}
+          <input class="pl-volume" id="plVolume" type="range" min="0" max="1" step="0.01" value="${state.volume}" aria-label="${t("volume")}" />
+        </div>
+        <button class="pl-collapse" id="plCollapse" aria-label="close">${ICON.back.replace('viewBox="0 0 24 24"','viewBox="0 0 24 24" style="transform:rotate(-90deg)"')}</button>
+      </div>
+    </div>`;
+}
+
+/* ---------- custom category creator (local device only) ---------- */
+
+function renderCustomScreen() {
+  const ids = Object.keys(state.customCats);
+  const list = ids.length ? ids.map((id) => {
+    const c = state.customCats[id];
+    return `
+      <div class="custom-row">
+        <span class="custom-row-emoji">${c.emoji || "🗂️"}</span>
+        <span class="custom-row-name">${esc(c.label)}<span class="custom-row-count">${(c.words||[]).length} ${state.lang === "en" ? "words" : "слов"}</span></span>
+        <button class="custom-del" data-del-custom="${esc(id)}" aria-label="${t("customDelete")}">${ICON.trash}</button>
+      </div>`;
+  }).join("") : `<p class="hint">${t("customEmpty")}</p>`;
+  return `
+    <div class="screen">
+      ${topBar("setup", t("customTitle"))}
+      <div class="section-label">${t("customName")}</div>
+      <input class="text-input" id="customNameInput" maxlength="28" placeholder="${state.lang === "en" ? "e.g. Marvel heroes" : "напр. Герои Marvel"}" value="${esc(state.customDraft.name)}" />
+      <div class="section-label" style="margin-top:18px">${t("customWords")}</div>
+      <textarea class="text-input" id="customWordsInput" rows="4" style="resize:vertical;max-width:320px" placeholder="${state.lang === "en" ? "Iron Man, Thor, Hulk, ..." : "Железный человек, Тор, Халк, ..."}">${esc(state.customDraft.words)}</textarea>
+      <p class="hint" style="margin-top:10px">${t("customHint")}</p>
+      <button class="btn-primary" style="margin-top:8px" id="saveCustomBtn">${t("customSave")}</button>
+      <div class="section-label" style="margin-top:30px">${t("myWords")}</div>
+      <div class="custom-list">${list}</div>
+    </div>`;
+}
+
+/* ---------- settings ---------- */
+
+function renderSettingsScreen() {
+  return `
+    <div class="screen">
+      ${topBar("menu", t("settings"))}
+      <div class="settings-card">
+        <div class="settings-row">
+          <span>${t("language")}</span>
+          <div class="chip-row">
+            <button class="chip${state.lang === "ru" ? " chip-active" : ""}" data-set-lang="ru">RU</button>
+            <button class="chip${state.lang === "en" ? " chip-active" : ""}" data-set-lang="en">EN</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span>${t("sound")}</span>
+          <div class="chip-row">
+            <button class="chip${state.soundOn ? " chip-active" : ""}" data-set-sound="1">${t("enable")}</button>
+            <button class="chip${!state.soundOn ? " chip-active" : ""}" data-set-sound="0">${t("disable")}</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span>${t("music")}</span>
+          <div class="chip-row">
+            <button class="chip${state.musicOn ? " chip-active" : ""}" data-set-music="1">${t("enable")}</button>
+            <button class="chip${!state.musicOn ? " chip-active" : ""}" data-set-music="0">${t("disable")}</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span>${t("volume")}</span>
+          <input class="pl-volume" id="settingsVolume" type="range" min="0" max="1" step="0.01" value="${state.volume}" style="max-width:160px" />
+        </div>
+      </div>
+    </div>`;
 }
 
 /* ---------- persistent chrome: header / discord / rules trigger / stats / modal ----------
@@ -479,12 +841,19 @@ function renderHeader() {
   return `
     <header class="app-header">
       <div class="app-header-inner">
-        <div class="brand-mark">
+        <div class="brand-mark" data-nav="menu" role="button" tabindex="0">
           <span class="brand-mark-icon">${ICON.lock.replace('width="30" height="30"', 'width="16" height="16"')}</span>
           <span class="brand-mark-text">ШПИОН</span>
         </div>
         <div class="header-actions">
-          <button class="rules-trigger" id="rulesTriggerBtn" type="button">${ICON.eye}<span>Как играть</span></button>
+          <button class="hdr-icon-btn" id="langToggleBtn" type="button" aria-label="${t("language")}" title="${t("language")}">
+            ${ICON.globe.replace('width="26" height="26"','width="16" height="16"')}<span class="hdr-lang">${state.lang.toUpperCase()}</span>
+          </button>
+          <button class="hdr-icon-btn" id="soundToggleBtn" type="button" aria-label="${t("sound")}" title="${t("sound")}">
+            ${state.soundOn ? ICON.sound : ICON.soundOff}
+          </button>
+          <button class="hdr-icon-btn" id="settingsBtn" type="button" aria-label="${t("settings")}" title="${t("settings")}">${ICON.gear}</button>
+          <button class="rules-trigger" id="rulesTriggerBtn" type="button">${ICON.eye}<span class="hide-sm">${t("howToPlay")}</span></button>
           <span class="discord-wrap">
             <button class="discord-badge" id="discordBadgeBtn" type="button" aria-label="Discord" tabindex="0">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 5.3A17.6 17.6 0 0 0 15.9 4l-.3.6a13 13 0 0 1 3.7 1.4 15.9 15.9 0 0 0-13.6 0A13 13 0 0 1 9.4 4.6L9.1 4a17.6 17.6 0 0 0-4.4 1.3C1.7 9.6 1 13.8 1.3 18a17.8 17.8 0 0 0 5.2 2.6l.8-1.3a11.6 11.6 0 0 1-1.8-.9c.2-.1.3-.2.5-.3a12.8 12.8 0 0 0 11 0l.5.3a11.6 11.6 0 0 1-1.9.9l.8 1.3a17.7 17.7 0 0 0 5.2-2.6c.4-4.9-.8-9-3-12.7ZM8.7 15.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.9.9 1.8 2c0 1.1-.8 2-1.8 2Zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.9.9 1.8 2c0 1.1-.8 2-1.8 2Z"/></svg>
@@ -540,23 +909,43 @@ function topBar(backScreen, label, onBackId) {
     </div>`;
 }
 
-function categoryGrid(activeKey, disabled) {
-  let out = `<div class="grid-cats" id="catGrid" data-disabled="${!!disabled}">`;
-  for (const key in CATEGORIES) {
-    const c = CATEGORIES[key];
-    const active = key === activeKey;
+function categoryGrid(activeKey, disabled, opts) {
+  opts = opts || {};
+  const cats = opts.builtinOnly ? Object.assign({}, CATEGORIES) : allCategories();
+  const q = (opts.search || "").trim().toLowerCase();
+  const keys = Object.keys(cats).filter((key) => {
+    if (!q) return true;
+    const c = cats[key];
+    return (c.label || "").toLowerCase().includes(q) || (c.labelEn || "").toLowerCase().includes(q);
+  });
+  let out = "";
+  if (opts.showSearch) {
     out += `
-      <button class="cat-slot" data-cat="${key}" aria-pressed="${active}" ${disabled ? "disabled" : ""}>
+      <div class="cat-search">
+        ${ICON.search}
+        <input class="cat-search-input" id="catSearchInput" type="text" placeholder="${t("searchCats")}" value="${esc(state.catSearch)}" />
+      </div>`;
+  }
+  out += `<div class="grid-cats" id="catGrid" data-disabled="${!!disabled}">`;
+  for (const key of keys) {
+    const c = cats[key];
+    const active = key === activeKey;
+    const isCustom = key.indexOf("custom:") === 0;
+    out += `
+      <button class="cat-slot" data-cat="${esc(key)}" aria-pressed="${active}" ${disabled ? "disabled" : ""}>
         <span class="cat-card${active ? " cat-card-active" : ""}">
           <span class="cat-card-top">
-            <span class="cat-emoji">${c.emoji}</span>
-            ${c.hard ? '<span class="cat-hard-tag">сложная</span>' : ""}
+            <span class="cat-emoji">${c.emoji || "🗂️"}</span>
+            ${c.hard ? '<span class="cat-hard-tag">hard</span>' : ""}
+            ${isCustom ? '<span class="cat-hard-tag" style="color:#67e8f9;border-color:rgba(103,232,249,.4);background:rgba(103,232,249,.12)">custom</span>' : ""}
           </span>
-          <span class="cat-name">${esc(c.label)}</span>
+          <span class="cat-name">${esc(state.lang === "en" && c.labelEn ? c.labelEn : c.label)}</span>
+          <span class="cat-count">${(c.words ? c.words.length : 0)} ${state.lang === "en" ? "words" : "слов"}</span>
         </span>
       </button>`;
   }
   out += "</div>";
+  if (!keys.length) out += `<p class="hint" style="margin-top:14px">${t("noCatsFound")}</p>`;
   return out;
 }
 
@@ -585,17 +974,20 @@ function flipCard(isSpy, category, word, flipped, stageId) {
 function renderMenu() {
   return `
     <div class="screen center">
-      <div class="badge">${ICON.sparkles}<span>выберите формат игры</span></div>
+      <div class="badge">${ICON.sparkles}<span>${t("tagline")}</span></div>
       <h1 class="title">ШПИОН</h1>
-      <p class="subtitle">Один из вас не знает секретное слово. Остальные описывают его намёками, не называя напрямую — а шпион слушает и пытается вычислить, о чём речь.</p>
+      <p class="subtitle">${t("intro")}</p>
       <div class="menu-grid">
-        <button class="menu-card" data-nav="home">${ICON.phone}
-          <div class="menu-card-title">Один телефон по кругу</div>
-          <div class="menu-card-sub">Передаёте устройство каждому игроку вживую</div>
+        <button class="menu-card menu-card-hero" data-nav="online-home">
+          <span class="hero-glow" aria-hidden="true"></span>
+          ${ICON.globe}
+          <div class="menu-card-title">${t("playOnline")}</div>
+          <div class="menu-card-sub">${t("playOnlineSub")}</div>
+          <span class="hero-cta">${t("play")} →</span>
         </button>
-        <button class="menu-card menu-card-accent" data-nav="online-home">${ICON.globe}
-          <div class="menu-card-title">Играть онлайн</div>
-          <div class="menu-card-sub">У каждого свой телефон или компьютер — комната по коду</div>
+        <button class="menu-card" data-nav="home">${ICON.phone}
+          <div class="menu-card-title">${t("passPhone")}</div>
+          <div class="menu-card-sub">${t("passPhoneSub")}</div>
         </button>
       </div>
     </div>`;
@@ -629,8 +1021,11 @@ function renderSetup() {
   return `
     <div class="screen">
       ${topBar("home", "Настройка")}
-      <div class="section-label">Тема</div>
-      ${categoryGrid(state.categoryKey, false)}
+      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
+        <span>${t("theme")}</span>
+        <button class="link-btn" id="openCustomBtn" type="button">${ICON.plus}${t("customTitle")}</button>
+      </div>
+      ${categoryGrid(state.categoryKey, false, { showSearch: true, search: state.catSearch })}
       <div class="section-label" style="margin-top:28px">Игроки</div>
       <div class="stepper">
         <button type="button" class="stepper-btn" id="playerMinus" ${state.playerCount <= MIN_PLAYERS ? "disabled" : ""}>−</button>
@@ -656,7 +1051,7 @@ function renderReveal() {
       <div class="dots">${dots}</div>
       <div class="player-label">Игрок ${state.currentPlayer + 1} <span class="muted">из ${state.playerCount}</span></div>
       <p class="hint">Передайте телефон игроку ${state.currentPlayer + 1}. Остальные не смотрят на экран.</p>
-      ${flipCard(isSpy, CATEGORIES[state.categoryKey].label, state.word, state.flipped, "stageBtn")}
+      ${flipCard(isSpy, catLabel(state.categoryKey), state.word, state.flipped, "stageBtn")}
       <button class="btn-primary" style="margin-top:32px" id="nextBtn" ${!state.flipped ? "disabled" : ""}>
         ${state.flipped ? "Скрыть и передать дальше" : "Сначала посмотри карточку"}
       </button>
@@ -667,7 +1062,7 @@ function renderDiscuss() {
   return `
     <div class="screen center">
       <div class="badge">${ICON.eye}<span>обсуждение вслух</span></div>
-      <div class="discuss-cat">${esc(CATEGORIES[state.categoryKey].label)}</div>
+      <div class="discuss-cat">${esc(catLabel(state.categoryKey))}</div>
       <p class="hint">По очереди дайте намёк на слово, не называя его. Шпион слушает и пытается вычислить ответ или остаться незамеченным.</p>
       <div class="timer">${ICON.clock}<span id="timerText">${fmtTime(state.timeLeft)}</span></div>
       <div class="timer-controls">
@@ -686,7 +1081,7 @@ function renderResult() {
       <div class="badge badge-danger">${ICON.sparkles}<span>раунд завершён</span></div>
       <h2 class="result-title">Шпион — <span class="accent-red">Игрок ${state.spyIndex + 1}</span></h2>
       <div class="result-word-box">
-        <div class="cat-tag">${esc(CATEGORIES[state.categoryKey].label)}</div>
+        <div class="cat-tag">${esc(catLabel(state.categoryKey))}</div>
         <div class="the-word">${esc(state.word)}</div>
       </div>
       <p class="hint">Угадали все вместе, кто шпион? Сверьтесь и начните новый раунд.</p>
@@ -808,8 +1203,8 @@ function renderOnlineLobby(room) {
       <p class="hint">Отправьте этот код друзьям — пусть введут его на своих устройствах.</p>
       ${playerChips(room)}
       ${host ? `
-        <div class="section-label" style="margin-top:24px">Тема</div>
-        ${categoryGrid(room.categoryKey, false)}
+        <div class="section-label" style="margin-top:24px">${t("theme")}</div>
+        ${categoryGrid(room.categoryKey, false, { showSearch: true, search: state.catSearch, builtinOnly: true })}
         ${placesUI}
         <div class="section-label" style="margin-top:24px">Время на обсуждение</div>
         <div class="chip-row" id="onlineTimeChips">${timeChips}</div>
@@ -821,7 +1216,7 @@ function renderOnlineLobby(room) {
         <button class="btn-primary" style="margin-top:30px" id="startRoundBtn" ${!canStart ? "disabled" : ""}>
           ${!room.categoryKey ? "Выберите тему" : players.length < MIN_PLAYERS ? `Нужно ещё ${MIN_PLAYERS - players.length} игрок(а)` : "Раздать роли"}
         </button>` : `
-        <div class="waiting-box">${ICON.refresh}<span>${room.categoryKey ? `Хост выбрал тему «${esc(CATEGORIES[room.categoryKey].label)}». Ждём начала раунда…` : "Хост выбирает тему…"}</span></div>`}
+        <div class="waiting-box">${ICON.refresh}<span>${room.categoryKey ? `Хост выбрал тему «${esc(catLabel(room.categoryKey))}». Ждём начала раунда…` : "Хост выбирает тему…"}</span></div>`}
     </div>`;
 }
 
@@ -834,7 +1229,7 @@ function renderOnlineActive(room) {
     <div class="screen center">
       <div class="badge">${ICON.eye}<span>раунд ${room.round}${spyIds.length > 1 ? " · 2 шпиона" : ""}</span></div>
       <p class="hint" style="margin-bottom:16px">Смотрите карточку когда угодно — она видна только вам.</p>
-      ${flipCard(isSpy, CATEGORIES[room.categoryKey].label, room.word, state.onlineFlipped, "onlineStageBtn")}
+      ${flipCard(isSpy, catLabel(room.categoryKey), room.word, state.onlineFlipped, "onlineStageBtn")}
       <div class="timer" style="margin-top:28px">${ICON.clock}<span id="onlineTimerText">${secondsLeft > 0 ? fmtTime(secondsLeft) : "00:00"}</span></div>
       <p class="hint">По очереди дайте намёк на слово вслух, не называя его. Когда время выйдет, начнётся голосование.</p>
       ${host
@@ -888,10 +1283,11 @@ function renderOnlineResult(room) {
 
   return `
     <div class="screen center">
+      <div class="verdict-emblem ${caughtSpy ? "verdict-win" : "verdict-lose"}">${caughtSpy ? "🎉" : "🕵️"}</div>
       <div class="badge badge-danger">${ICON.sparkles}<span>раунд завершён</span></div>
       <h2 class="result-title">${verdict}</h2>
       <div class="result-word-box">
-        <div class="cat-tag">${esc(CATEGORIES[room.categoryKey].label)}</div>
+        <div class="cat-tag">${esc(catLabel(room.categoryKey))}</div>
         <div class="the-word">${esc(room.word)}</div>
         <div class="spy-sub" style="margin-top:6px">Шпион${spyIds.length > 1 ? "ы" : ""}: <span class="accent-red">${esc(spyNames.join(", "))}</span></div>
       </div>
@@ -1102,6 +1498,61 @@ function wireEvents() {
   // is left as a placeholder so a real invite link can be dropped in later).
   const discordBadgeBtn = document.getElementById("discordBadgeBtn");
   if (discordBadgeBtn) discordBadgeBtn.addEventListener("click", () => { /* link coming soon */ });
+
+  // ---- header controls ----
+  const langToggleBtn = document.getElementById("langToggleBtn");
+  if (langToggleBtn) langToggleBtn.addEventListener("click", () => { playSfx("tap"); setLang(state.lang === "ru" ? "en" : "ru"); });
+  const soundToggleBtn = document.getElementById("soundToggleBtn");
+  if (soundToggleBtn) soundToggleBtn.addEventListener("click", () => setSound(!state.soundOn));
+  const settingsBtn = document.getElementById("settingsBtn");
+  if (settingsBtn) settingsBtn.addEventListener("click", () => { playSfx("open"); goTo("settings"); });
+
+  // ---- category search (preserve focus/caret across re-render) ----
+  const catSearchInput = document.getElementById("catSearchInput");
+  if (catSearchInput) catSearchInput.addEventListener("input", (e) => {
+    state.catSearch = e.target.value;
+    render();
+    const again = document.getElementById("catSearchInput");
+    if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
+  });
+
+  // ---- custom category screen ----
+  const openCustomBtn = document.getElementById("openCustomBtn");
+  if (openCustomBtn) openCustomBtn.addEventListener("click", () => { playSfx("open"); goTo("custom"); });
+  const customNameInput = document.getElementById("customNameInput");
+  if (customNameInput) customNameInput.addEventListener("input", (e) => { state.customDraft.name = e.target.value; });
+  const customWordsInput = document.getElementById("customWordsInput");
+  if (customWordsInput) customWordsInput.addEventListener("input", (e) => { state.customDraft.words = e.target.value; });
+  const saveCustomBtn = document.getElementById("saveCustomBtn");
+  if (saveCustomBtn) saveCustomBtn.addEventListener("click", saveCustomCategory);
+  const customList = document.getElementById("app");
+  document.querySelectorAll("[data-del-custom]").forEach((el) => {
+    el.addEventListener("click", () => deleteCustomCategory(el.getAttribute("data-del-custom")));
+  });
+
+  // ---- settings screen ----
+  document.querySelectorAll("[data-set-lang]").forEach((el) => el.addEventListener("click", () => setLang(el.getAttribute("data-set-lang"))));
+  document.querySelectorAll("[data-set-sound]").forEach((el) => el.addEventListener("click", () => setSound(el.getAttribute("data-set-sound") === "1")));
+  document.querySelectorAll("[data-set-music]").forEach((el) => el.addEventListener("click", () => {
+    const want = el.getAttribute("data-set-music") === "1";
+    if (want !== state.musicOn) musicToggle(); else render();
+  }));
+  const settingsVolume = document.getElementById("settingsVolume");
+  if (settingsVolume) settingsVolume.addEventListener("input", (e) => { setVolume(parseFloat(e.target.value)); });
+
+  // ---- music player ----
+  const playerFab = document.getElementById("playerFab");
+  if (playerFab) playerFab.addEventListener("click", () => { state.playerOpen = true; render(); });
+  const plCollapse = document.getElementById("plCollapse");
+  if (plCollapse) plCollapse.addEventListener("click", () => { state.playerOpen = false; render(); });
+  const plPlay = document.getElementById("plPlay");
+  if (plPlay) plPlay.addEventListener("click", () => { playSfx("tap"); musicToggle(); });
+  const plPrev = document.getElementById("plPrev");
+  if (plPrev) plPrev.addEventListener("click", musicPrev);
+  const plNext = document.getElementById("plNext");
+  if (plNext) plNext.addEventListener("click", musicNext);
+  const plVolume = document.getElementById("plVolume");
+  if (plVolume) plVolume.addEventListener("input", (e) => { setVolume(parseFloat(e.target.value)); });
 }
 
 document.addEventListener("keydown", (e) => {
@@ -1114,3 +1565,28 @@ document.addEventListener("keydown", (e) => {
 // there is nothing to silently rejoin without knowing the room code, so we
 // always start clean at the menu — simplest and least surprising behaviour.
 render();
+
+// Cinematic splash: show ~2.4s on first load, then fade into the menu.
+if (!state.splashDone) {
+  setTimeout(() => {
+    const splash = document.getElementById("splash");
+    if (splash) splash.classList.add("splash-out");
+    setTimeout(() => { state.splashDone = true; render(); }, 600);
+  }, 2400);
+}
+
+// Play a win/lose flourish once whenever the online result screen appears.
+let lastResultSig = null;
+function resultSfxWatcher() {
+  if (state.screen === "online-room" && state.room && state.room.status === "result") {
+    const sig = state.roomCode + ":" + state.room.round;
+    if (sig !== lastResultSig) {
+      lastResultSig = sig;
+      const players = playersArray();
+      const { caughtSpy } = tallyVotes(state.room, players);
+      playSfx(caughtSpy ? "win" : "lose");
+    }
+  } else if (!(state.room && state.room.status === "result")) {
+    lastResultSig = null;
+  }
+}
