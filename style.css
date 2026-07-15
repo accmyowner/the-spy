@@ -524,3 +524,8 @@ textarea.text-input { font-family: 'Manrope', sans-serif; line-height: 1.5; }
 @media (prefers-reduced-motion: reduce) {
   .splash-logo, .menu-card-hero, .screen-anim, .verdict-win, .verdict-lose, .toast, .splash-bar span { animation: none !important; }
 }
+
+/* ---- in-lobby room custom category form (Variant A) ---- */
+.room-custom-form { width: 100%; max-width: 340px; background: var(--glass); backdrop-filter: blur(14px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; margin-bottom: 14px; animation: screenSlide .3s ease both; }
+.room-custom-form .text-input { width: 100%; }
+@media (min-width: 900px) { .room-custom-form { max-width: 640px; } }

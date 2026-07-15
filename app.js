@@ -166,14 +166,11 @@ const state = {
   rulesOpen: false,
   lang: loadSetting("spyLang", "ru"),          // "ru" | "en"
   soundOn: loadSetting("spySoundOn", true),
-  musicOn: loadSetting("spyMusicOn", false),
-  volume: loadSetting("spyVolume", 0.6),
-  musicTrackIndex: loadSetting("spyTrackIndex", 0),
   playerName: loadSetting("spyProfileName", sessionStorage.getItem("spyPlayerName") || ""),
   catSearch: "",
   customCats: loadCustomCategories(),
   customDraft: { name: "", words: "" },       // "create your own category" form
-  playerOpen: false,                           // music player expanded on mobile
+  roomCustomOpen: false,                        // in-lobby "add category" form open (host)
   splashDone: false,
   toasts: []
 };
@@ -192,7 +189,7 @@ const I18N = {
     playOnline: "Играть онлайн", playOnlineSub: "У каждого свой телефон или компьютер — комната по коду",
     passPhone: "Один телефон по кругу", passPhoneSub: "Передаёте устройство каждому игроку вживую",
     howToPlay: "Как играть", rules: "Правила", settings: "Настройки", categories: "Категории",
-    myWords: "Мои слова", music: "Музыка", home: "Главная", play: "Играть",
+    myWords: "Мои слова", home: "Главная", play: "Играть",
     createRoom: "Создать комнату", joinRoom: "Войти по коду", back: "Назад",
     theme: "Тема", searchCats: "Поиск категорий…", noCatsFound: "Ничего не найдено",
     language: "Язык", sound: "Звуковые эффекты", enable: "Вкл", disable: "Выкл",
@@ -200,7 +197,6 @@ const I18N = {
     customWords: "Слова через запятую", customSave: "Сохранить категорию",
     customHint: "Своя категория сохраняется только на этом устройстве и доступна в режиме «Один телефон».",
     customEmpty: "Пока нет своих категорий.", customDelete: "Удалить",
-    volume: "Громкость", nowPlaying: "Сейчас играет", noTracks: "Добавьте свои аудиофайлы",
     by: "by Nickalora", online: "Онлайн"
   },
   en: {
@@ -209,7 +205,7 @@ const I18N = {
     playOnline: "Play online", playOnlineSub: "Everyone on their own phone or PC — room by code",
     passPhone: "Pass one phone", passPhoneSub: "Hand the device to each player in turn",
     howToPlay: "How to play", rules: "Rules", settings: "Settings", categories: "Categories",
-    myWords: "My words", music: "Music", home: "Home", play: "Play",
+    myWords: "My words", home: "Home", play: "Play",
     createRoom: "Create room", joinRoom: "Join by code", back: "Back",
     theme: "Topic", searchCats: "Search categories…", noCatsFound: "Nothing found",
     language: "Language", sound: "Sound effects", enable: "On", disable: "Off",
@@ -217,7 +213,6 @@ const I18N = {
     customWords: "Words, comma-separated", customSave: "Save category",
     customHint: "A custom category is stored only on this device and available in “Pass one phone” mode.",
     customEmpty: "No custom categories yet.", customDelete: "Delete",
-    volume: "Volume", nowPlaying: "Now playing", noTracks: "Add your own audio files",
     by: "by Nickalora", online: "Online"
   }
 };
@@ -237,72 +232,6 @@ function allCategories() {
   const merged = Object.assign({}, CATEGORIES);
   for (const id in state.customCats) merged["custom:" + id] = state.customCats[id];
   return merged;
-}
-
-/* ============================== music (universal player, bring-your-own audio) ==============================
-   No copyrighted audio is bundled. Drop your own files into an "audio" folder
-   next to index.html and list them below — the player works immediately.
-   Each entry: { title, artist, src, cover }. `src`/`cover` may be empty until
-   you add files; the player then runs in silent "demo" mode (controls work,
-   nothing plays) so the UI is fully testable now. */
-const TRACKS = [
-  { title: "Night Drive", artist: "Synthwave Mix", src: "", cover: "" },
-  { title: "Cold Case",   artist: "Noir Beats",    src: "", cover: "" },
-  { title: "Trust No One", artist: "Spy Theme",    src: "", cover: "" }
-];
-
-let audioEl = null;
-function getAudio() {
-  if (!audioEl) {
-    audioEl = new Audio();
-    audioEl.preload = "none";
-    audioEl.volume = state.volume;
-    audioEl.addEventListener("ended", () => musicNext());
-  }
-  return audioEl;
-}
-function currentTrack() {
-  if (!TRACKS.length) return null;
-  const i = ((state.musicTrackIndex % TRACKS.length) + TRACKS.length) % TRACKS.length;
-  return TRACKS[i];
-}
-function musicApplyLoad(autoplay) {
-  const a = getAudio();
-  const tr = currentTrack();
-  a.volume = state.volume;
-  if (tr && tr.src) {
-    if (a.src !== tr.src) a.src = tr.src;
-    if (autoplay && state.musicOn) a.play().catch(() => {});
-    else if (!state.musicOn) a.pause();
-  } else {
-    a.removeAttribute("src");
-  }
-}
-function musicToggle() {
-  state.musicOn = !state.musicOn;
-  saveSetting("spyMusicOn", state.musicOn);
-  const a = getAudio();
-  const tr = currentTrack();
-  if (state.musicOn && tr && tr.src) a.play().catch(() => {});
-  else a.pause();
-  render();
-}
-function musicNext() {
-  state.musicTrackIndex = (state.musicTrackIndex + 1) % (TRACKS.length || 1);
-  saveSetting("spyTrackIndex", state.musicTrackIndex);
-  musicApplyLoad(true);
-  render();
-}
-function musicPrev() {
-  state.musicTrackIndex = (state.musicTrackIndex - 1 + (TRACKS.length || 1)) % (TRACKS.length || 1);
-  saveSetting("spyTrackIndex", state.musicTrackIndex);
-  musicApplyLoad(true);
-  render();
-}
-function setVolume(v) {
-  state.volume = Math.max(0, Math.min(1, v));
-  saveSetting("spyVolume", state.volume);
-  getAudio().volume = state.volume;
 }
 
 /* ============================== sound effects (WebAudio blips, no files) ============================== */
@@ -524,11 +453,80 @@ async function hostPatch(patch) {
   catch (e) { /* transient network hiccup — next state sync will self-correct */ }
 }
 
+/* ---- room custom categories (Variant A: live inside the room, host-managed) ----
+   Stored at rooms/{code}/customCats/{catId} = { label, words:[...], createdBy }.
+   Only the host writes; every player receives them via the existing onValue
+   subscription, so they appear in the theme grid for everyone in real time. */
+async function addRoomCustomCategory() {
+  if (!isHost() || !state.roomCode) return;
+  const name = (state.customDraft.name || "").trim();
+  const words = (state.customDraft.words || "").split(",").map((w) => w.trim()).filter(Boolean);
+  if (!name) { toast(state.lang === "en" ? "Enter a category name" : "Введите название категории", "error"); return; }
+  if (words.length < 3) { toast(state.lang === "en" ? "Add at least 3 words" : "Добавьте минимум 3 слова", "error"); return; }
+  const catId = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1000).toString(36);
+  try {
+    await set(ref(db, `rooms/${state.roomCode}/customCats/${catId}`), {
+      label: name, words, createdBy: MY_ID, createdAt: Date.now()
+    });
+    state.customDraft = { name: "", words: "" };
+    state.roomCustomOpen = false;
+    playSfx("ok");
+    toast(state.lang === "en" ? "Category added to room" : "Категория добавлена в комнату", "ok");
+    render();
+  } catch (e) {
+    toast(state.lang === "en" ? "Couldn't save category" : "Не удалось сохранить категорию", "error");
+  }
+}
+async function deleteRoomCustomCategory(catId) {
+  if (!isHost() || !state.roomCode) return;
+  try {
+    await remove(ref(db, `rooms/${state.roomCode}/customCats/${catId}`));
+    // If the deleted category was selected, clear the selection so no one
+    // tries to start a round on a category that no longer exists.
+    if (state.room && state.room.categoryKey === "custom:" + catId) {
+      await hostPatch({ categoryKey: null });
+    }
+    render();
+  } catch (e) { /* transient — the listener will resync */ }
+}
+
+// Categories to show in the online lobby grid: built-ins + this room's custom
+// ones, keyed "custom:<id>". Purely a view helper; does not touch state.
+function roomCategories(room) {
+  const merged = Object.assign({}, CATEGORIES);
+  if (room && room.customCats) {
+    for (const id in room.customCats) {
+      const cc = room.customCats[id];
+      merged["custom:" + id] = {
+        label: cc.label, labelEn: cc.label, emoji: "🗂️",
+        words: Array.isArray(cc.words) ? cc.words : [],
+        isRoomCustom: true, catId: id
+      };
+    }
+  }
+  return merged;
+}
+
+// Resolve the word pool for the room's chosen category. Built-in categories
+// come from the shared CATEGORIES table; room-custom categories (keys
+// "custom:<id>") come from the live room.customCats node so every player
+// deals from exactly the same list. Falls back safely to an empty array.
+function wordsForRoom(room) {
+  const key = room.categoryKey;
+  if (key && key.indexOf("custom:") === 0) {
+    const id = key.slice("custom:".length);
+    const cc = room.customCats && room.customCats[id];
+    return (cc && Array.isArray(cc.words)) ? cc.words : [];
+  }
+  return wordsForCategory(key, room.placesDifficulty);
+}
+
 async function startRound() {
   const room = state.room;
   const players = playersArray();
   if (!isHost() || !room || !room.categoryKey || players.length < MIN_PLAYERS) return;
-  const list = wordsForCategory(room.categoryKey, room.placesDifficulty);
+  const list = wordsForRoom(room);
+  if (!list || !list.length) { toast(state.lang === "en" ? "This category has no words" : "В этой категории нет слов", "error"); return; }
   const word = pickRandom(list);
   const spyCount = (room.spyCount === 2 && players.length >= MIN_PLAYERS_FOR_TWO_SPIES) ? 2 : 1;
   const shuffled = players.map((p) => p.id).sort(() => Math.random() - 0.5);
@@ -911,7 +909,7 @@ function topBar(backScreen, label, onBackId) {
 
 function categoryGrid(activeKey, disabled, opts) {
   opts = opts || {};
-  const cats = opts.builtinOnly ? Object.assign({}, CATEGORIES) : allCategories();
+  const cats = opts.cats ? opts.cats : (opts.builtinOnly ? Object.assign({}, CATEGORIES) : allCategories());
   const q = (opts.search || "").trim().toLowerCase();
   const keys = Object.keys(cats).filter((key) => {
     if (!q) return true;
@@ -1203,8 +1201,13 @@ function renderOnlineLobby(room) {
       <p class="hint">Отправьте этот код друзьям — пусть введут его на своих устройствах.</p>
       ${playerChips(room)}
       ${host ? `
-        <div class="section-label" style="margin-top:24px">${t("theme")}</div>
-        ${categoryGrid(room.categoryKey, false, { showSearch: true, search: state.catSearch, builtinOnly: true })}
+        <div class="section-label" style="margin-top:24px;display:flex;justify-content:space-between;align-items:center">
+          <span>${t("theme")}</span>
+          <button class="link-btn" id="roomCustomToggle" type="button">${ICON.plus}${t("customTitle")}</button>
+        </div>
+        ${state.roomCustomOpen ? renderRoomCustomForm(room) : ""}
+        ${categoryGrid(room.categoryKey, false, { showSearch: true, search: state.catSearch, cats: roomCategories(room) })}
+        ${roomCustomManageList(room)}
         ${placesUI}
         <div class="section-label" style="margin-top:24px">Время на обсуждение</div>
         <div class="chip-row" id="onlineTimeChips">${timeChips}</div>
@@ -1216,8 +1219,46 @@ function renderOnlineLobby(room) {
         <button class="btn-primary" style="margin-top:30px" id="startRoundBtn" ${!canStart ? "disabled" : ""}>
           ${!room.categoryKey ? "Выберите тему" : players.length < MIN_PLAYERS ? `Нужно ещё ${MIN_PLAYERS - players.length} игрок(а)` : "Раздать роли"}
         </button>` : `
-        <div class="waiting-box">${ICON.refresh}<span>${room.categoryKey ? `Хост выбрал тему «${esc(catLabel(room.categoryKey))}». Ждём начала раунда…` : "Хост выбирает тему…"}</span></div>`}
+        <div class="waiting-box">${ICON.refresh}<span>${room.categoryKey ? `Хост выбрал тему «${esc(roomCatLabel(room, room.categoryKey))}». Ждём начала раунда…` : "Хост выбирает тему…"}</span></div>`}
     </div>`;
+}
+
+// Label resolver that also knows this room's custom categories (for the
+// non-host waiting view and any online label display).
+function roomCatLabel(room, key) {
+  if (key && key.indexOf("custom:") === 0) {
+    const id = key.slice("custom:".length);
+    const cc = room.customCats && room.customCats[id];
+    return cc ? cc.label : (state.lang === "en" ? "Custom" : "Своя категория");
+  }
+  return catLabel(key);
+}
+
+function renderRoomCustomForm(room) {
+  return `
+    <div class="room-custom-form">
+      <input class="text-input" id="roomCustomName" maxlength="28" placeholder="${t("customName")}" value="${esc(state.customDraft.name)}" style="max-width:none" />
+      <textarea class="text-input" id="roomCustomWords" rows="3" placeholder="${t("customWords")}" style="max-width:none;resize:vertical;margin-top:8px">${esc(state.customDraft.words)}</textarea>
+      <p class="hint" style="margin:8px 0 0;max-width:none">${state.lang === "en" ? "Everyone in the room will see and can play this category." : "Категорию увидят все в комнате, и по ней можно будет играть."}</p>
+      <button class="btn-primary" id="roomCustomSave" style="margin-top:10px">${t("customSave")}</button>
+    </div>`;
+}
+
+// Host-only list of this room's custom categories with delete buttons.
+function roomCustomManageList(room) {
+  if (!room.customCats) return "";
+  const ids = Object.keys(room.customCats);
+  if (!ids.length) return "";
+  const rows = ids.map((id) => {
+    const c = room.customCats[id];
+    return `
+      <div class="custom-row" style="margin-top:8px">
+        <span class="custom-row-emoji">🗂️</span>
+        <span class="custom-row-name">${esc(c.label)}<span class="custom-row-count">${(c.words||[]).length} ${state.lang === "en" ? "words" : "слов"}</span></span>
+        <button class="custom-del" data-del-room-custom="${esc(id)}" aria-label="${t("customDelete")}">${ICON.trash}</button>
+      </div>`;
+  }).join("");
+  return `<div class="custom-list" style="margin-top:10px">${rows}</div>`;
 }
 
 function renderOnlineActive(room) {
@@ -1229,7 +1270,7 @@ function renderOnlineActive(room) {
     <div class="screen center">
       <div class="badge">${ICON.eye}<span>раунд ${room.round}${spyIds.length > 1 ? " · 2 шпиона" : ""}</span></div>
       <p class="hint" style="margin-bottom:16px">Смотрите карточку когда угодно — она видна только вам.</p>
-      ${flipCard(isSpy, catLabel(room.categoryKey), room.word, state.onlineFlipped, "onlineStageBtn")}
+      ${flipCard(isSpy, roomCatLabel(room, room.categoryKey), room.word, state.onlineFlipped, "onlineStageBtn")}
       <div class="timer" style="margin-top:28px">${ICON.clock}<span id="onlineTimerText">${secondsLeft > 0 ? fmtTime(secondsLeft) : "00:00"}</span></div>
       <p class="hint">По очереди дайте намёк на слово вслух, не называя его. Когда время выйдет, начнётся голосование.</p>
       ${host
@@ -1287,7 +1328,7 @@ function renderOnlineResult(room) {
       <div class="badge badge-danger">${ICON.sparkles}<span>раунд завершён</span></div>
       <h2 class="result-title">${verdict}</h2>
       <div class="result-word-box">
-        <div class="cat-tag">${esc(catLabel(room.categoryKey))}</div>
+        <div class="cat-tag">${esc(roomCatLabel(room, room.categoryKey))}</div>
         <div class="the-word">${esc(room.word)}</div>
         <div class="spy-sub" style="margin-top:6px">Шпион${spyIds.length > 1 ? "ы" : ""}: <span class="accent-red">${esc(spyNames.join(", "))}</span></div>
       </div>
@@ -1459,6 +1500,19 @@ function wireEvents() {
 
   const startRoundBtn = document.getElementById("startRoundBtn");
   if (startRoundBtn) startRoundBtn.addEventListener("click", startRound);
+
+  // ---- room custom categories (host-managed, synced via Firebase) ----
+  const roomCustomToggle = document.getElementById("roomCustomToggle");
+  if (roomCustomToggle) roomCustomToggle.addEventListener("click", () => { state.roomCustomOpen = !state.roomCustomOpen; render(); });
+  const roomCustomName = document.getElementById("roomCustomName");
+  if (roomCustomName) roomCustomName.addEventListener("input", (e) => { state.customDraft.name = e.target.value; });
+  const roomCustomWords = document.getElementById("roomCustomWords");
+  if (roomCustomWords) roomCustomWords.addEventListener("input", (e) => { state.customDraft.words = e.target.value; });
+  const roomCustomSave = document.getElementById("roomCustomSave");
+  if (roomCustomSave) roomCustomSave.addEventListener("click", addRoomCustomCategory);
+  document.querySelectorAll("[data-del-room-custom]").forEach((el) => {
+    el.addEventListener("click", () => deleteRoomCustomCategory(el.getAttribute("data-del-room-custom")));
+  });
 
   // online active: flip in place (own private card, toggles both ways)
   const onlineStageBtn = document.getElementById("onlineStageBtn");
