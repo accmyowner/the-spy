@@ -24,12 +24,29 @@ const CATEGORIES = {
   drinks:     { label: "Напитки", emoji: "🥤", words: ["Кофе","Чай","Кола","Морс","Смузи","Молочный коктейль","Лимонад","Квас","Компот","Какао","Энергетик","Айран","Сок","Газировка","Матча"] },
   holidays:   { label: "Праздники", emoji: "🎉", words: ["Новый год","День рождения","Хэллоуин","8 марта","23 февраля","Пасха","Масленица","День святого Валентина","Выпускной","Свадьба","1 сентября","Новоселье","День победы","Юбилей","Пикник"] },
   school:     { label: "Школьные предметы", emoji: "📚", words: ["Математика","Физика","Химия","История","География","Биология","Литература","Информатика","Физкультура","Английский язык","Музыка","ИЗО","Труд","Обществознание","Астрономия"] },
-  places:     { label: "Места", emoji: "📍", hard: true, words: ["Супермаркет","Больница","Аэропорт","Тюрьма","Казино","Подводная лодка","Космическая станция","Автомойка","Ночной клуб","Библиотека","Атомная электростанция","Посольство","Круизный лайнер","Подземный бункер","Секретная лаборатория","Крематорий","Заброшенный завод","Планетарий"] }
+  places:     { label: "Места", emoji: "📍", hard: true,
+    wordsEasy: ["Школа","Больница","Магазин","Кинотеатр","Ресторан","Кафе","Парк","Пляж","Стадион","Библиотека","Отель","Аэропорт","Автобусная остановка","Почта","Банк","Супермаркет","Зоопарк","Музей"],
+    wordsHard: ["Крематорий","Военная база","Бункер","Нефтяная платформа","Подводная лодка","Обсерватория","Серверная","Электростанция","Радиостанция","Лаборатория","Космодром","Шахта","Очистные сооружения","Морской порт","Диспетчерская вышка"],
+    get words() { return this.wordsEasy.concat(this.wordsHard); } }
 };
 
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 12;
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no O/0, I/1 — avoids mis-reads
+const MIN_PLAYERS_FOR_TWO_SPIES = 6; // keeps at least 4 non-spies in the room
+const VOTE_SECONDS_OPTIONS = [60, 120, 180, 240, 300];
+
+// Returns the word pool for a category, respecting the "Места" difficulty
+// setting when relevant. Every other category is unaffected.
+function wordsForCategory(catKey, placesDifficulty) {
+  const c = CATEGORIES[catKey];
+  if (catKey === "places") {
+    if (placesDifficulty === "easy") return c.wordsEasy;
+    if (placesDifficulty === "hard") return c.wordsHard;
+    return c.words; // "all" or unset
+  }
+  return c.words;
+}
 
 /* ============================== icons ============================== */
 
@@ -115,7 +132,9 @@ const state = {
   copied: false,
   errorMsg: "",
   busy: false,
-  connecting: false
+  connecting: false,
+  // UI-only (does not affect game/Firebase logic): whether the "Как играть" modal is open
+  rulesOpen: false
 };
 
 let discussTimerId = null;   // local pass-the-phone discussion timer
@@ -218,7 +237,13 @@ async function createRoom() {
     discussEndAt: null,
     round: 0,
     word: null,
-    spyId: null,
+    spyId: null,        // kept for backward compatibility; spyIds below is the source of truth going forward
+    spyIds: null,
+    spyCount: 1,
+    voteSeconds: 120,
+    voteEndAt: null,
+    votes: null,
+    placesDifficulty: "all",
     hostId: MY_ID,
     createdAt: Date.now(),
     players: { [MY_ID]: { name, joinedAt: Date.now() } }
@@ -274,14 +299,69 @@ async function startRound() {
   const room = state.room;
   const players = playersArray();
   if (!isHost() || !room || !room.categoryKey || players.length < MIN_PLAYERS) return;
-  const list = CATEGORIES[room.categoryKey].words;
+  const list = wordsForCategory(room.categoryKey, room.placesDifficulty);
   const word = pickRandom(list);
-  const spyId = players[Math.floor(Math.random() * players.length)].id;
+  const spyCount = (room.spyCount === 2 && players.length >= MIN_PLAYERS_FOR_TWO_SPIES) ? 2 : 1;
+  const shuffled = players.map((p) => p.id).sort(() => Math.random() - 0.5);
+  const spyIds = shuffled.slice(0, spyCount);
   const discussEndAt = Date.now() + (room.discussSeconds || 300) * 1000;
-  await hostPatch({ status: "active", word, spyId, discussEndAt, round: (room.round || 0) + 1 });
+  await hostPatch({
+    status: "active",
+    word, spyIds, spyId: spyIds[0],
+    discussEndAt, round: (room.round || 0) + 1,
+    voteEndAt: null, votes: null
+  });
 }
-async function endRound() { await hostPatch({ status: "result" }); }
-async function backToLobby() { await hostPatch({ status: "lobby", word: null, spyId: null, discussEndAt: null }); }
+
+// Discussion time is up (or the host cut it short) — move everyone into the
+// voting stage instead of straight to results.
+async function startVoting() {
+  const room = state.room;
+  if (!isHost() || !room) return;
+  const voteEndAt = Date.now() + (room.voteSeconds || 120) * 1000;
+  await hostPatch({ status: "voting", voteEndAt, votes: {} });
+}
+
+// Any player casts (or changes, while voting is still open) their own vote.
+// Each player only ever writes their own key, same safe pattern as the
+// player list, so there is no write race between voters.
+async function castVote(suspectId) {
+  const room = state.room;
+  if (!room || room.status !== "voting" || !state.roomCode) return;
+  if (room.votes && room.votes[MY_ID]) return; // one vote per player, as requested
+  try { await update(ref(db, `rooms/${state.roomCode}/votes`), { [MY_ID]: suspectId }); }
+  catch (e) { /* transient — the room listener will resync */ }
+}
+
+// Tally votes, reveal who was accused, and whether the group actually
+// caught a spy — purely a read of state.room.votes, no extra Firebase call.
+function tallyVotes(room, players) {
+  const votes = room.votes || {};
+  const counts = {};
+  players.forEach((p) => { counts[p.id] = 0; });
+  Object.values(votes).forEach((suspectId) => {
+    if (counts[suspectId] != null) counts[suspectId] += 1;
+  });
+  let topId = null, topCount = -1, tie = false;
+  players.forEach((p) => {
+    const c = counts[p.id];
+    if (c > topCount) { topCount = c; topId = p.id; tie = false; }
+    else if (c === topCount && c > 0) { tie = true; }
+  });
+  const accusedId = (topCount > 0 && !tie) ? topId : null;
+  const spyIds = room.spyIds || (room.spyId ? [room.spyId] : []);
+  const caughtSpy = accusedId != null && spyIds.includes(accusedId);
+  return { votes, counts, accusedId, tie, spyIds, caughtSpy };
+}
+
+async function finishVoting() {
+  if (!isHost()) return;
+  await hostPatch({ status: "result" });
+}
+
+async function backToLobby() {
+  await hostPatch({ status: "lobby", word: null, spyId: null, spyIds: null, discussEndAt: null, voteEndAt: null, votes: null });
+}
 
 async function leaveRoom() {
   const code = state.roomCode;
@@ -369,6 +449,7 @@ const app = document.getElementById("app");
 
 function render() {
   let html = '<div class="glow glow-a" aria-hidden="true"></div><div class="glow glow-b" aria-hidden="true"></div>';
+  html += renderHeader();
   switch (state.screen) {
     case "menu": html += renderMenu(); break;
     case "home": html += renderHome(); break;
@@ -382,9 +463,72 @@ function render() {
     case "online-room": html += renderOnlineRoom(); break;
     default: html += renderMenu();
   }
+  html += renderStatsBar();
+  if (state.rulesOpen) html += renderRulesModal();
   app.innerHTML = html;
   wireEvents();
   ensureOnlineTick();
+}
+
+/* ---------- persistent chrome: header / discord / rules trigger / stats / modal ----------
+   Purely presentational additions layered on top of the existing screens.
+   They don't read or write any game/Firebase state except the new,
+   UI-only `state.rulesOpen` flag above. */
+
+function renderHeader() {
+  return `
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="brand-mark">
+          <span class="brand-mark-icon">${ICON.lock.replace('width="30" height="30"', 'width="16" height="16"')}</span>
+          <span class="brand-mark-text">ШПИОН</span>
+        </div>
+        <div class="header-actions">
+          <button class="rules-trigger" id="rulesTriggerBtn" type="button">${ICON.eye}<span>Как играть</span></button>
+          <span class="discord-wrap">
+            <button class="discord-badge" id="discordBadgeBtn" type="button" aria-label="Discord" tabindex="0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 5.3A17.6 17.6 0 0 0 15.9 4l-.3.6a13 13 0 0 1 3.7 1.4 15.9 15.9 0 0 0-13.6 0A13 13 0 0 1 9.4 4.6L9.1 4a17.6 17.6 0 0 0-4.4 1.3C1.7 9.6 1 13.8 1.3 18a17.8 17.8 0 0 0 5.2 2.6l.8-1.3a11.6 11.6 0 0 1-1.8-.9c.2-.1.3-.2.5-.3a12.8 12.8 0 0 0 11 0l.5.3a11.6 11.6 0 0 1-1.9.9l.8 1.3a17.7 17.7 0 0 0 5.2-2.6c.4-4.9-.8-9-3-12.7ZM8.7 15.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.9.9 1.8 2c0 1.1-.8 2-1.8 2Zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.9.9 1.8 2c0 1.1-.8 2-1.8 2Z"/></svg>
+            </button>
+            <span class="discord-tooltip" role="tooltip">Discord: ds; nickalora</span>
+          </span>
+        </div>
+      </div>
+    </header>`;
+}
+
+function renderStatsBar() {
+  const catCount = Object.keys(CATEGORIES).length;
+  const inRoom = state.screen === "online-room" && state.room;
+  const playersNow = inRoom ? playersArray().length : null;
+  return `
+    <div class="stats-bar" aria-hidden="true">
+      <div class="stats-bar-inner">
+        <div class="stat-item"><span class="stat-value">${catCount}</span><span class="stat-label">тем</span></div>
+        <span class="stat-sep"></span>
+        <div class="stat-item"><span class="stat-value">${MIN_PLAYERS}–${MAX_PLAYERS}</span><span class="stat-label">игроков</span></div>
+        <span class="stat-sep"></span>
+        <div class="stat-item"><span class="stat-value">${playersNow != null ? playersNow : "—"}</span><span class="stat-label">в комнате</span></div>
+        <span class="stat-sep"></span>
+        <div class="stat-item"><span class="stat-value">0₽</span><span class="stat-label">бесплатно</span></div>
+      </div>
+    </div>`;
+}
+
+function renderRulesModal() {
+  return `
+    <div class="modal-overlay" id="rulesOverlay">
+      <div class="modal" role="dialog" aria-modal="true" aria-label="Правила игры">
+        <button class="modal-close" id="rulesCloseBtn" type="button" aria-label="Закрыть">${ICON.back.replace('viewBox="0 0 24 24"', 'viewBox="0 0 24 24" style="transform:rotate(45deg)"')}</button>
+        <div class="modal-title">Правила игры «Шпион»</div>
+        <ol class="modal-steps">
+          <li class="modal-step"><span class="modal-step-num">1</span><span class="modal-step-text">Все игроки, кроме одного, получают <b>одно и то же секретное слово</b> из выбранной темы. Один игрок — <b>шпион</b> — не знает слово и видит только тему.</span></li>
+          <li class="modal-step"><span class="modal-step-num">2</span><span class="modal-step-text">По очереди каждый вслух даёт <b>намёк на слово</b>, не называя его напрямую. Шпион тоже говорит — старается не спалиться и понять, о чём речь.</span></li>
+          <li class="modal-step"><span class="modal-step-num">3</span><span class="modal-step-text">Слушайте внимательно: слишком общий или слишком точный намёк может выдать шпиона — или, наоборот, обычного игрока.</span></li>
+          <li class="modal-step"><span class="modal-step-num">4</span><span class="modal-step-text">Когда время обсуждения выходит, все вместе решают, <b>кто шпион</b>, и сверяются с ответом на экране результатов.</span></li>
+          <li class="modal-step"><span class="modal-step-num">5</span><span class="modal-step-text">Шпион побеждает, если его не вычислили (или он успел угадать секретное слово по намёкам остальных).</span></li>
+        </ol>
+      </div>
+    </div>`;
 }
 
 function topBar(backScreen, label, onBackId) {
@@ -612,6 +756,7 @@ function renderOnlineRoom() {
   }
   const room = state.room;
   if (room.status === "active") return renderOnlineActive(room);
+  if (room.status === "voting") return renderOnlineVoting(room);
   if (room.status === "result") return renderOnlineResult(room);
   return renderOnlineLobby(room);
 }
@@ -637,6 +782,21 @@ function renderOnlineLobby(room) {
   const timeChips = [180, 300, 480].map((s) =>
     `<button class="chip${room.discussSeconds === s ? " chip-active" : ""}" data-online-time="${s}" ${host ? "" : "disabled"}>${Math.round(s / 60)} мин</button>`
   ).join("");
+  const voteChips = VOTE_SECONDS_OPTIONS.map((s) =>
+    `<button class="chip${(room.voteSeconds || 120) === s ? " chip-active" : ""}" data-vote-time="${s}" ${host ? "" : "disabled"}>${Math.round(s / 60)} мин</button>`
+  ).join("");
+  const twoSpiesAllowed = players.length >= MIN_PLAYERS_FOR_TWO_SPIES;
+  const spyCount = (room.spyCount === 2 && twoSpiesAllowed) ? 2 : 1;
+  const spyChips = [1, 2].map((n) =>
+    `<button class="chip${spyCount === n ? " chip-active" : ""}" data-spy-count="${n}" ${(host && (n === 1 || twoSpiesAllowed)) ? "" : "disabled"}>${n} ${n === 1 ? "шпион" : "шпиона"}</button>`
+  ).join("");
+  const placesUI = (host && room.categoryKey === "places") ? `
+    <div class="section-label" style="margin-top:24px">Сложность мест</div>
+    <div class="chip-row" id="placesDifficultyChips">
+      <button class="chip${(room.placesDifficulty || "all") === "easy" ? " chip-active" : ""}" data-places-diff="easy">Лёгкие</button>
+      <button class="chip${(room.placesDifficulty || "all") === "hard" ? " chip-active" : ""}" data-places-diff="hard">Сложные</button>
+      <button class="chip${(room.placesDifficulty || "all") === "all" ? " chip-active" : ""}" data-places-diff="all">Все</button>
+    </div>` : "";
 
   return `
     <div class="screen center">
@@ -650,8 +810,14 @@ function renderOnlineLobby(room) {
       ${host ? `
         <div class="section-label" style="margin-top:24px">Тема</div>
         ${categoryGrid(room.categoryKey, false)}
+        ${placesUI}
         <div class="section-label" style="margin-top:24px">Время на обсуждение</div>
         <div class="chip-row" id="onlineTimeChips">${timeChips}</div>
+        <div class="section-label" style="margin-top:24px">Время на голосование</div>
+        <div class="chip-row" id="voteTimeChips">${voteChips}</div>
+        <div class="section-label" style="margin-top:24px">Количество шпионов</div>
+        <div class="chip-row" id="spyCountChips">${spyChips}</div>
+        ${!twoSpiesAllowed ? `<p class="hint" style="margin:8px 0 0;max-width:340px">2 шпиона станут доступны от ${MIN_PLAYERS_FOR_TWO_SPIES} игроков.</p>` : ""}
         <button class="btn-primary" style="margin-top:30px" id="startRoundBtn" ${!canStart ? "disabled" : ""}>
           ${!room.categoryKey ? "Выберите тему" : players.length < MIN_PLAYERS ? `Нужно ещё ${MIN_PLAYERS - players.length} игрок(а)` : "Раздать роли"}
         </button>` : `
@@ -660,58 +826,114 @@ function renderOnlineLobby(room) {
 }
 
 function renderOnlineActive(room) {
-  const isSpy = room.spyId === MY_ID;
+  const spyIds = room.spyIds || (room.spyId ? [room.spyId] : []);
+  const isSpy = spyIds.includes(MY_ID);
   const secondsLeft = room.discussEndAt ? Math.round((room.discussEndAt - Date.now()) / 1000) : 0;
   const host = isHost();
   return `
     <div class="screen center">
-      <div class="badge">${ICON.eye}<span>раунд ${room.round}</span></div>
+      <div class="badge">${ICON.eye}<span>раунд ${room.round}${spyIds.length > 1 ? " · 2 шпиона" : ""}</span></div>
       <p class="hint" style="margin-bottom:16px">Смотрите карточку когда угодно — она видна только вам.</p>
       ${flipCard(isSpy, CATEGORIES[room.categoryKey].label, room.word, state.onlineFlipped, "onlineStageBtn")}
       <div class="timer" style="margin-top:28px">${ICON.clock}<span id="onlineTimerText">${secondsLeft > 0 ? fmtTime(secondsLeft) : "00:00"}</span></div>
-      <p class="hint">По очереди дайте намёк на слово вслух, не называя его.</p>
+      <p class="hint">По очереди дайте намёк на слово вслух, не называя его. Когда время выйдет, начнётся голосование.</p>
       ${host
-        ? `<button class="btn-primary" id="endRoundBtn">Завершить раунд</button>`
-        : `<div class="waiting-box">${ICON.refresh}<span>Ждём, когда хост завершит раунд…</span></div>`}
+        ? `<button class="btn-primary" id="endRoundBtn">Перейти к голосованию</button>`
+        : `<div class="waiting-box">${ICON.refresh}<span>Ждём, когда хост начнёт голосование…</span></div>`}
       <div style="margin-top:22px">${playerChips(room)}</div>
+    </div>`;
+}
+
+function renderOnlineVoting(room) {
+  const players = playersArray();
+  const votes = room.votes || {};
+  const myVote = votes[MY_ID] || null;
+  const secondsLeft = room.voteEndAt ? Math.round((room.voteEndAt - Date.now()) / 1000) : 0;
+  const votedCount = Object.keys(votes).length;
+  const host = isHost();
+  const options = players.filter((p) => p.id !== MY_ID).map((p) => `
+    <button class="chip${myVote === p.id ? " chip-active" : ""}" data-vote-for="${p.id}" ${myVote ? "disabled" : ""}>${esc(p.name)}</button>
+  `).join("");
+  return `
+    <div class="screen center">
+      <div class="badge badge-danger">${ICON.sparkles}<span>голосование</span></div>
+      <h2 class="result-title">Кто шпион?</h2>
+      <div class="timer" style="margin-top:0">${ICON.clock}<span id="onlineTimerText">${secondsLeft > 0 ? fmtTime(secondsLeft) : "00:00"}</span></div>
+      <p class="hint">${myVote ? "Голос учтён. Ждём остальных." : "Выберите, кого подозреваете. Голос можно отдать только один раз."}</p>
+      <div class="chip-row" id="voteOptions" style="justify-content:center;max-width:340px">${options}</div>
+      <p class="hint" style="margin-top:20px">Проголосовало ${votedCount} из ${players.length}</p>
+      ${host ? `<button class="btn-primary" id="finishVotingBtn">Завершить голосование</button>` : ""}
     </div>`;
 }
 
 function renderOnlineResult(room) {
   const players = playersArray();
-  const spyName = (players.find((p) => p.id === room.spyId) || {}).name || "неизвестно";
+  const { counts, accusedId, tie, spyIds, caughtSpy } = tallyVotes(room, players);
+  const spyNames = spyIds.map((id) => (players.find((p) => p.id === id) || {}).name || "неизвестно");
+  const accusedName = accusedId ? ((players.find((p) => p.id === accusedId) || {}).name || "неизвестно") : null;
   const host = isHost();
+
+  const voteRows = players.map((p) => {
+    const votedFor = (room.votes || {})[p.id];
+    const votedForName = votedFor ? ((players.find((x) => x.id === votedFor) || {}).name || "?") : "—";
+    return `<div class="player-chip">${esc(p.name)}: <b style="margin-left:4px">${esc(votedForName)}</b></div>`;
+  }).join("");
+
+  const countRows = players.map((p) => `<div class="player-chip">${esc(p.name)} — ${counts[p.id] || 0} гол.</div>`).join("");
+
+  let verdict;
+  if (!accusedId) verdict = `Большинство не набралось — ${spyIds.length > 1 ? "шпионы остаются" : "шпион остаётся"} незамеченным. Победа шпион${spyIds.length > 1 ? "ов" : "а"}!`;
+  else if (caughtSpy) verdict = `${esc(accusedName)} был${spyIds.length > 1 ? "и" : ""} шпионом! Победа мирных жителей.`;
+  else verdict = `${esc(accusedName)} — не шпион. ${spyIds.length > 1 ? "Шпионы остались" : "Шпион остался"} незамеченным. Победа шпион${spyIds.length > 1 ? "ов" : "а"}!`;
+
   return `
     <div class="screen center">
       <div class="badge badge-danger">${ICON.sparkles}<span>раунд завершён</span></div>
-      <h2 class="result-title">Шпион — <span class="accent-red">${esc(spyName)}</span></h2>
+      <h2 class="result-title">${verdict}</h2>
       <div class="result-word-box">
         <div class="cat-tag">${esc(CATEGORIES[room.categoryKey].label)}</div>
         <div class="the-word">${esc(room.word)}</div>
+        <div class="spy-sub" style="margin-top:6px">Шпион${spyIds.length > 1 ? "ы" : ""}: <span class="accent-red">${esc(spyNames.join(", "))}</span></div>
       </div>
-      <p class="hint">Угадали все вместе, кто шпион?</p>
+      <div class="section-label" style="margin-top:10px">Кто за кого голосовал</div>
+      <div class="player-list">${voteRows}</div>
+      <div class="section-label" style="margin-top:16px">Голосов набрано</div>
+      <div class="player-list">${countRows}</div>
       ${host ? `
-        <div class="result-actions">
+        <div class="result-actions" style="margin-top:22px">
           <button class="btn-primary" id="newOnlineRoundBtn">Новый раунд, та же тема</button>
           <button class="btn-ghost" id="backToLobbyBtn">Сменить тему</button>
         </div>` : `
-        <div class="waiting-box">${ICON.refresh}<span>Ждём решения хоста…</span></div>`}
+        <div class="waiting-box" style="margin-top:22px">${ICON.refresh}<span>Ждём решения хоста…</span></div>`}
     </div>`;
 }
 
 /* ============================== online 1s countdown ============================== */
 
+let votingTransitionInFlight = false;
+
 function ensureOnlineTick() {
   stopOnlineTick();
-  if (state.screen === "online-room" && state.room && state.room.status === "active") {
-    onlineTickId = setInterval(() => {
-      const room = state.room;
-      if (!room || !room.discussEndAt) return;
-      const secondsLeft = Math.round((room.discussEndAt - Date.now()) / 1000);
-      const el = document.getElementById("onlineTimerText");
-      if (el) el.textContent = secondsLeft > 0 ? fmtTime(secondsLeft) : "00:00";
-    }, 1000);
-  }
+  if (state.screen !== "online-room" || !state.room) return;
+  const status = state.room.status;
+  if (status !== "active" && status !== "voting") return;
+  onlineTickId = setInterval(() => {
+    const room = state.room;
+    if (!room) return;
+    const endAt = room.status === "active" ? room.discussEndAt : room.voteEndAt;
+    if (!endAt) return;
+    const secondsLeft = Math.round((endAt - Date.now()) / 1000);
+    const el = document.getElementById("onlineTimerText");
+    if (el) el.textContent = secondsLeft > 0 ? fmtTime(secondsLeft) : "00:00";
+
+    // Host auto-advances the stage when its clock runs out. Guarded by
+    // votingTransitionInFlight so a slow network reply can't fire twice.
+    if (isHost() && secondsLeft <= 0 && !votingTransitionInFlight) {
+      votingTransitionInFlight = true;
+      const advance = room.status === "active" ? startVoting() : finishVoting();
+      Promise.resolve(advance).finally(() => { votingTransitionInFlight = false; });
+    }
+  }, 1000);
 }
 
 /* ============================== events ============================== */
@@ -762,6 +984,27 @@ function wireEvents() {
     const chip = e.target.closest("[data-online-time]");
     if (!chip) return;
     hostPatch({ discussSeconds: parseInt(chip.getAttribute("data-online-time"), 10) });
+  });
+
+  const voteTimeChips = document.getElementById("voteTimeChips");
+  if (voteTimeChips) voteTimeChips.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-vote-time]");
+    if (!chip) return;
+    hostPatch({ voteSeconds: parseInt(chip.getAttribute("data-vote-time"), 10) });
+  });
+
+  const spyCountChips = document.getElementById("spyCountChips");
+  if (spyCountChips) spyCountChips.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-spy-count]");
+    if (!chip || chip.disabled) return;
+    hostPatch({ spyCount: parseInt(chip.getAttribute("data-spy-count"), 10) });
+  });
+
+  const placesDifficultyChips = document.getElementById("placesDifficultyChips");
+  if (placesDifficultyChips) placesDifficultyChips.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-places-diff]");
+    if (!chip) return;
+    hostPatch({ placesDifficulty: chip.getAttribute("data-places-diff") });
   });
 
   const startBtn = document.getElementById("startBtn");
@@ -831,12 +1074,39 @@ function wireEvents() {
   });
 
   const endRoundBtn = document.getElementById("endRoundBtn");
-  if (endRoundBtn) endRoundBtn.addEventListener("click", endRound);
+  if (endRoundBtn) endRoundBtn.addEventListener("click", startVoting);
+
+  const voteOptions = document.getElementById("voteOptions");
+  if (voteOptions) voteOptions.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-vote-for]");
+    if (!chip || chip.disabled) return;
+    castVote(chip.getAttribute("data-vote-for"));
+  });
+  const finishVotingBtn = document.getElementById("finishVotingBtn");
+  if (finishVotingBtn) finishVotingBtn.addEventListener("click", finishVoting);
+
   const newOnlineRoundBtn = document.getElementById("newOnlineRoundBtn");
   if (newOnlineRoundBtn) newOnlineRoundBtn.addEventListener("click", startRound);
   const backToLobbyBtn = document.getElementById("backToLobbyBtn");
   if (backToLobbyBtn) backToLobbyBtn.addEventListener("click", backToLobby);
+
+  // ---- new, purely presentational chrome (rules modal, Discord badge) ----
+  // These only touch the new state.rulesOpen flag — no game/Firebase state.
+  const rulesTriggerBtn = document.getElementById("rulesTriggerBtn");
+  if (rulesTriggerBtn) rulesTriggerBtn.addEventListener("click", () => { state.rulesOpen = true; render(); });
+  const rulesCloseBtn = document.getElementById("rulesCloseBtn");
+  if (rulesCloseBtn) rulesCloseBtn.addEventListener("click", () => { state.rulesOpen = false; render(); });
+  const rulesOverlay = document.getElementById("rulesOverlay");
+  if (rulesOverlay) rulesOverlay.addEventListener("click", (e) => { if (e.target === rulesOverlay) { state.rulesOpen = false; render(); } });
+  // Discord badge: hover tooltip only for now (per request — the click target
+  // is left as a placeholder so a real invite link can be dropped in later).
+  const discordBadgeBtn = document.getElementById("discordBadgeBtn");
+  if (discordBadgeBtn) discordBadgeBtn.addEventListener("click", () => { /* link coming soon */ });
 }
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && state.rulesOpen) { state.rulesOpen = false; render(); }
+});
 
 /* ============================== boot ============================== */
 
