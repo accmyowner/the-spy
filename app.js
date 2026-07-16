@@ -68,6 +68,29 @@ const ICON = {
   refresh: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 22v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L21 8M3 16l2.64 2.36A9 9 0 0 0 20.49 15"/></svg>'
 };
 
+/* Glowing particle field for the background. Pure SVG, drawn once into the
+   persistent shell; only CSS transforms animate it (GPU-composited, no
+   per-frame JS), so it stays smooth at 60fps on phones and never reflows
+   the interface. Two layers move at different speeds for a parallax feel. */
+const BG_PARTICLES_SVG = (function () {
+  function layer(cls, count, seed) {
+    let dots = "";
+    let s = seed;
+    const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    for (let i = 0; i < count; i++) {
+      const x = (rnd() * 100).toFixed(2);
+      const y = (rnd() * 100).toFixed(2);
+      const r = (rnd() * 1.4 + 0.4).toFixed(2);
+      const o = (rnd() * 0.5 + 0.15).toFixed(2);
+      const dur = (rnd() * 4 + 3).toFixed(2);
+      const delay = (rnd() * 5).toFixed(2);
+      dots += `<circle cx="${x}%" cy="${y}%" r="${r}" fill="currentColor" opacity="${o}" style="animation-duration:${dur}s;animation-delay:-${delay}s"/>`;
+    }
+    return `<svg class="bg-particles ${cls}" preserveAspectRatio="none">${dots}</svg>`;
+  }
+  return layer("bg-particles-far", 26, 12345) + layer("bg-particles-near", 16, 67890);
+})();
+
 /* ============================== helpers ============================== */
 
 function fmtTime(sec) {
@@ -447,9 +470,42 @@ function resetDiscussTimer() {
 
 const app = document.getElementById("app");
 
+// Persistent shell: the animated background and header are built ONCE and
+// never destroyed on re-render. Only #screen-root's contents are swapped.
+// This is the core flicker fix — previously every render() (including the
+// 1s timer tick and every Firebase snapshot) rebuilt the whole page, which
+// restarted the background animations and caused visible flashing.
+let shellBuilt = false;
+function buildShell() {
+  app.innerHTML =
+    '<div class="bg-scene" aria-hidden="true">' +
+      '<div class="bg-grad"></div>' +
+      '<div class="bg-grid"></div>' +
+      '<div class="bg-fog bg-fog-1"></div>' +
+      '<div class="bg-fog bg-fog-2"></div>' +
+      '<div class="bg-scan"></div>' +
+      BG_PARTICLES_SVG +
+      '<div class="bg-vignette"></div>' +
+    '</div>' +
+    '<div id="header-root"></div>' +
+    '<div id="screen-root"></div>' +
+    '<div id="overlay-root"></div>';
+  shellBuilt = true;
+}
+
 function render() {
-  let html = '<div class="glow glow-a" aria-hidden="true"></div><div class="glow glow-b" aria-hidden="true"></div>';
-  html += renderHeader();
+  if (!shellBuilt) buildShell();
+
+  // Header rarely changes; only rewrite it if its markup actually differs,
+  // so hovering/clicking elsewhere never reflows or restarts header effects.
+  const headerRoot = document.getElementById("header-root");
+  const headerHtml = renderHeader();
+  if (headerRoot && headerRoot.getAttribute("data-html") !== headerHtml) {
+    headerRoot.innerHTML = headerHtml;
+    headerRoot.setAttribute("data-html", headerHtml);
+  }
+
+  let html = "";
   switch (state.screen) {
     case "menu": html += renderMenu(); break;
     case "home": html += renderHome(); break;
@@ -463,9 +519,12 @@ function render() {
     case "online-room": html += renderOnlineRoom(); break;
     default: html += renderMenu();
   }
-  html += renderStatsBar();
-  if (state.rulesOpen) html += renderRulesModal();
-  app.innerHTML = html;
+  const screenRoot = document.getElementById("screen-root");
+  if (screenRoot) screenRoot.innerHTML = html;
+
+  const overlayRoot = document.getElementById("overlay-root");
+  if (overlayRoot) overlayRoot.innerHTML = state.rulesOpen ? renderRulesModal() : "";
+
   wireEvents();
   ensureOnlineTick();
 }
@@ -494,24 +553,6 @@ function renderHeader() {
         </div>
       </div>
     </header>`;
-}
-
-function renderStatsBar() {
-  const catCount = Object.keys(CATEGORIES).length;
-  const inRoom = state.screen === "online-room" && state.room;
-  const playersNow = inRoom ? playersArray().length : null;
-  return `
-    <div class="stats-bar" aria-hidden="true">
-      <div class="stats-bar-inner">
-        <div class="stat-item"><span class="stat-value">${catCount}</span><span class="stat-label">тем</span></div>
-        <span class="stat-sep"></span>
-        <div class="stat-item"><span class="stat-value">${MIN_PLAYERS}–${MAX_PLAYERS}</span><span class="stat-label">игроков</span></div>
-        <span class="stat-sep"></span>
-        <div class="stat-item"><span class="stat-value">${playersNow != null ? playersNow : "—"}</span><span class="stat-label">в комнате</span></div>
-        <span class="stat-sep"></span>
-        <div class="stat-item"><span class="stat-value">0₽</span><span class="stat-label">бесплатно</span></div>
-      </div>
-    </div>`;
 }
 
 function renderRulesModal() {
@@ -1114,3 +1155,28 @@ document.addEventListener("keydown", (e) => {
 // there is nothing to silently rejoin without knowing the room code, so we
 // always start clean at the menu — simplest and least surprising behaviour.
 render();
+
+/* Subtle background parallax. Pointer-driven on desktop only (fine pointer),
+   rAF-throttled so at most one transform write per frame. Skipped entirely
+   for touch/coarse pointers and when the user prefers reduced motion, so it
+   never costs anything on phones. Transforms only → GPU-composited, 60fps. */
+(function initParallax() {
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fine = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
+  if (reduce || !fine) return;
+  let tx = 0, ty = 0, raf = 0;
+  function apply() {
+    raf = 0;
+    const far = document.querySelector(".bg-particles-far");
+    const near = document.querySelector(".bg-particles-near");
+    const fog = document.querySelector(".bg-fog-1");
+    if (far) far.style.transform = `translate3d(${tx * 6}px, ${ty * 6}px, 0)`;
+    if (near) near.style.transform = `translate3d(${tx * 14}px, ${ty * 14}px, 0)`;
+    if (fog) fog.style.transform = `translate3d(${tx * 10}px, ${ty * 10}px, 0)`;
+  }
+  window.addEventListener("pointermove", (e) => {
+    tx = (e.clientX / window.innerWidth - 0.5);
+    ty = (e.clientY / window.innerHeight - 0.5);
+    if (!raf) raf = requestAnimationFrame(apply);
+  }, { passive: true });
+})();
